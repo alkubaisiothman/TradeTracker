@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TradeTrack - Osakkeiden seuranta</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>TradeTrack</h1>
+    <p>Seuraa osakkeiden hintakehitystä ja saa hälytykset</p>
+  </header>
+
+  <main>
+    <section id="stock-search">
+      <h2>Hae osakkeen tietoja</h2>
+      <input type="text" id="stock-symbol" placeholder="Syötä osakkeen symboli (esim. AAPL)">
+      <button id="search-button">Hae</button>
+    </section>
+
+    <section id="stock-results">
+      <h2>Osakkeen tiedot</h2>
+      <div id="stock-data">
+        <!-- Tähän tulee osaketiedot -->
+      </div>
+    </section>
+
+    <section id="alerts">
+      <h2>Aseta hälytykset</h2>
+      <input type="number" id="alert-price" placeholder="Hinta, jolla haluat hälytyksen">
+      <button id="set-alert-button">Aseta hälytys</button>
+      <p id="alert-status"></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2023 TradeTrack. Kaikki oikeudet pidätetään.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
