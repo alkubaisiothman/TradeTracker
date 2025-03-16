@@ -4,6 +4,9 @@ body {
   color: #333;
   margin: 0;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Varmistaa, että footteri pysyy alhaalla */
 }
 
 header {
@@ -14,7 +17,22 @@ header {
 }
 
 main {
+  flex: 1; /* Täyttää jäljellä olevan tilan */
   padding: 20px;
+}
+
+.container {
+  display: flex;
+  gap: 20px; /* Välit osioiden välillä */
+}
+
+.left {
+  flex: 1; /* Vasen osio vie 1 osan tilasta */
+  max-width: 300px; /* Rajaa vasemman osion leveyttä */
+}
+
+.right {
+  flex: 3; /* Oikea osio vie 3 osaa tilasta */
 }
 
 section {
@@ -56,7 +74,13 @@ footer {
   color: white;
   text-align: center;
   padding: 10px;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
+  margin-top: auto; /* Varmistaa, että footteri pysyy alhaalla */
+}
+#stock-chart {
+  margin-top: 20px;
+}
+
+#priceChart {
+  max-width: 100%;
+  height: 300px;
 }

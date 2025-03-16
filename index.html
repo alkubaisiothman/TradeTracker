@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TradeTrack - Osakkeiden seuranta</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <header>
@@ -13,44 +14,45 @@
   </header>
 
   <main>
-    <!-- Valmiiksi näkyvät osakkeet -->
-    <section id="popular-stocks">
-      <h2>Suositut osakkeet</h2>
-      <div id="stock-list">
-        <!-- Tähän lisätään valmiit osakkeet -->
+    <div class="container">
+      <!-- Vasen osio: Suositut osakkeet -->
+      <div class="left">
+        <section id="popular-stocks">
+          <h2>Suositut osakkeet</h2>
+          <div id="stock-list">
+            <!-- Tähän lisätään valmiit osakkeet -->
+          </div>
+        </section>
       </div>
-    </section>
 
-    <!-- Osakkeiden haku -->
-    <section id="stock-search">
-      <h2>Hae osakkeita</h2>
-      <input type="text" id="stock-symbol" placeholder="Syötä osakkeen symboli (esim. AAPL)">
-      <button id="search-button">Hae</button>
-    </section>
+      <!-- Oikea osio: Haku, valitun osakkeen tiedot ja kaavio -->
+      <div class="right">
+        <section id="stock-search">
+          <h2>Hae osakkeita</h2>
+          <input type="text" id="stock-symbol" placeholder="Syötä osakkeen symboli (esim. AAPL)">
+          <button id="search-button">Hae</button>
+        </section>
 
-    <!-- Haun tulokset -->
-    <section id="stock-results">
-      <h2>Hakutulokset</h2>
-      <div id="search-results">
-        <!-- Tähän tulee hakutulokset -->
+        <section id="selected-stock">
+          <h2>Valitun osakkeen tiedot</h2>
+          <div id="stock-data">
+            <!-- Tähän tulee valitun osakkeen tiedot -->
+          </div>
+        </section>
+
+        <section id="stock-chart">
+          <h2>Hintakehitys</h2>
+          <canvas id="priceChart"></canvas>
+        </section>
+
+        <section id="alerts">
+          <h2>Aseta hälytykset</h2>
+          <input type="number" id="alert-price" placeholder="Hinta, jolla haluat hälytyksen">
+          <button id="set-alert-button">Aseta hälytys</button>
+          <p id="alert-status"></p>
+        </section>
       </div>
-    </section>
-
-    <!-- Valitun osakkeen tiedot -->
-    <section id="selected-stock">
-      <h2>Valitun osakkeen tiedot</h2>
-      <div id="stock-data">
-        <!-- Tähän tulee valitun osakkeen tiedot -->
-      </div>
-    </section>
-
-    <!-- Hälytysten asetus -->
-    <section id="alerts">
-      <h2>Aseta hälytykset</h2>
-      <input type="number" id="alert-price" placeholder="Hinta, jolla haluat hälytyksen">
-      <button id="set-alert-button">Aseta hälytys</button>
-      <p id="alert-status"></p>
-    </section>
+    </div>
   </main>
 
   <footer>

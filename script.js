@@ -1,6 +1,6 @@
 const BACKEND_URL = 'http://localhost:5000'; // Backend-palvelimen osoite
 
-// Valmiiksi näkyvät osakkeet
+// Valmiit osakkeet
 const popularStocks = [
   { symbol: 'AAPL', name: 'Apple Inc.' },
   { symbol: 'GOOGL', name: 'Alphabet Inc.' },
@@ -13,6 +13,46 @@ const popularStocks = [
   { symbol: 'JNJ', name: 'Johnson & Johnson' },
   { symbol: 'V', name: 'Visa Inc.' },
 ];
+
+// Alusta Chart.js-kaavio
+const ctx = document.getElementById('priceChart').getContext('2d');
+const priceChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: [], // Ajat (x-akseli)
+    datasets: [{
+      label: 'Hinta (USD)',
+      data: [], // Hinnat (y-akseli)
+      borderColor: '#007bff',
+      borderWidth: 2,
+      fill: false,
+    }],
+  },
+  options: {
+    responsive: true,
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: 'Aika',
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Hinta (USD)',
+        },
+      },
+    },
+  },
+});
+
+// Päivitä kaavio uusilla tiedoilla
+function updateChart(labels, data) {
+  priceChart.data.labels = labels;
+  priceChart.data.datasets[0].data = data;
+  priceChart.update();
+}
 
 // Näytä valmiit osakkeet
 function displayPopularStocks() {
@@ -48,6 +88,11 @@ async function fetchStockData(symbol) {
     if (data['Global Quote']) {
       const stockData = data['Global Quote'];
       displayStockData(stockData);
+
+      // Päivitä kaavio valitun osakkeen tiedoilla
+      const labels = ['1 päivä sitten', 'Nykyhetki']; // Esimerkki ajankohdista
+      const prices = [stockData['08. previous close'], stockData['05. price']]; // Esimerkki hinnoista
+      updateChart(labels, prices);
     } else {
       alert('Osaketta ei löytynyt. Tarkista symboli.');
     }
@@ -110,3 +155,8 @@ document.getElementById('set-alert-button').addEventListener('click', async () =
 
 // Alusta sovellus
 displayPopularStocks();
+
+// Näytä suosittujen osakkeiden hintakehitys alussa
+const initialLabels = ['1 viikko sitten', 'Nykyhetki']; // Esimerkki ajankohdista
+const initialPrices = [100, 105]; // Esimerkki hinnoista
+updateChart(initialLabels, initialPrices);
