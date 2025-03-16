@@ -18,5 +18,5 @@
     "node-fetch": "^2.7.0",
     "nodemailer": "^6.10.0"
   },
-  "description": ""
+  "description": "TradeTrack\r TradeTrack on verkkosovellus, joka auttaa käyttäjiä seuraamaan osakkeiden hintakehitystä reaaliajassa ja asettamaan hälytyksiä, kun osakkeen hinta ylittää tai alittaa ennalta määritellyt rajat. Sovellus on suunniteltu yksityissijoittajille, osakekauppiaille ja rahoitusalan ammattilaisille, jotka haluavat pysyä ajan tasalla sijoituksistaan ilman jatkuvaa markkinoiden tarkkailua."
 }

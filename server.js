@@ -53,6 +53,23 @@ app.get('/api/stock-data', async (req, res) => {
   }
 });
 
+// Hae historialliset tiedot Alpha Vantage -API:sta
+app.get('/api/historical-data', async (req, res) => {
+  const url = req.query.url;
+  if (!url) {
+    return res.status(400).send('URL puuttuu!');
+  }
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    res.status(200).json(data);
+  } catch (error) {
+    console.error('Virhe haettaessa historiallisia tietoja:', error);
+    res.status(500).send('Historiallisten tietojen haku epäonnistui.');
+  }
+});
+
 // Tallenna hälytys
 app.post('/api/alerts', async (req, res) => {
   const { symbol, price, email } = req.body;

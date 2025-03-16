@@ -6,7 +6,7 @@ body {
   padding: 0;
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Varmistaa, että footteri pysyy alhaalla */
+  min-height: 100vh;
 }
 
 header {
@@ -17,22 +17,22 @@ header {
 }
 
 main {
-  flex: 1; /* Täyttää jäljellä olevan tilan */
+  flex: 1;
   padding: 20px;
 }
 
 .container {
   display: flex;
-  gap: 20px; /* Välit osioiden välillä */
+  gap: 20px;
 }
 
 .left {
-  flex: 1; /* Vasen osio vie 1 osan tilasta */
-  max-width: 300px; /* Rajaa vasemman osion leveyttä */
+  flex: 1;
+  max-width: 300px;
 }
 
 .right {
-  flex: 3; /* Oikea osio vie 3 osaa tilasta */
+  flex: 3;
 }
 
 section {
@@ -74,13 +74,32 @@ footer {
   color: white;
   text-align: center;
   padding: 10px;
-  margin-top: auto; /* Varmistaa, että footteri pysyy alhaalla */
+  margin-top: auto;
 }
+
 #stock-chart {
   margin-top: 20px;
 }
 
 #priceChart {
-  max-width: 100%;
-  height: 300px;
+  max-width: 50%;
+  height: 50px; /* Pienennetty korkeus */
+}
+
+#chart-controls {
+  margin-bottom: 10px;
+}
+
+#chart-controls button {
+  padding: 5px 10px;
+  margin-right: 5px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#chart-controls button:hover {
+  background-color: #0056b3;
 }
