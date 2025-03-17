@@ -32,7 +32,29 @@ git clone https://github.com/käyttäjä/TradeTrack.git
 cd TradeTrack
 
 Asenna riippuvuudet:
+# Projektin alustaminen
+npm init -y
+# Riippuvuuksien asennus (backend)
+npm install express mongoose body-parser cors nodemailer dotenv node-fetch
+# Riippuvuuksien poistaminen
+npm uninstall node-fetch
+# Asenna node-fetch versio 2.x (koska versio 3.x vaatii ESM-moduuleja)
+npm install node-fetch@2
+# Projektin käynnistäminen
+node server.js
+# Kehitysmoodissa käynnistäminen (nodemon)
+npm install -g nodemon
+nodemon server.js
+# Riippuvuuksien päivittäminen
+npm update
+# Riippuvuuksien listaaminen
+npm list
+# Riippuvuuksien korjaaminen (jos node_modules on korruptoitunut)
 npm install
+# Turvallisuusongelmien tarkistaminen
+npm audit
+# Turvallisuusongelmien korjaaminen
+npm audit fix
 Luo .env-tiedosto:
 Luo .env-tiedosto projektin juureen ja lisää seuraavat 
 
