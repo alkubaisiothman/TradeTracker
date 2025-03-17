@@ -155,11 +155,17 @@ document.getElementById('set-alert-button').addEventListener('click', async () =
 
 // Hae historialliset tiedot Alpha Vantage -API:sta
 async function fetchHistoricalData(symbol, period) {
+  const loadingDiv = document.getElementById('chart-loading');
+  loadingDiv.style.display = 'block'; // Näytä latausanimaatio
+
   try {
     let url;
     switch (period) {
       case '1-day':
         url = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=60min&apikey=${process.env.ALPHA_VANTAGE_API_KEY}`;
+        break;
+      case '1-week':
+        url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${process.env.ALPHA_VANTAGE_API_KEY}`;
         break;
       case '1-month':
         url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${process.env.ALPHA_VANTAGE_API_KEY}`;
@@ -177,9 +183,10 @@ async function fetchHistoricalData(symbol, period) {
   } catch (error) {
     console.error('Virhe haettaessa historiallisia tietoja:', error);
     throw error;
+  } finally {
+    loadingDiv.style.display = 'none'; // Piilota latausanimaatio
   }
 }
-
 // Päivitä kaavio historiallisilla tiedoilla
 async function updateChartWithHistoricalData(symbol, period) {
   try {
@@ -193,6 +200,7 @@ async function updateChartWithHistoricalData(symbol, period) {
       case '1-day':
         timeSeries = data['Time Series (60min)'];
         break;
+      case '1-week':
       case '1-month':
         timeSeries = data['Time Series (Daily)'];
         break;
@@ -203,9 +211,18 @@ async function updateChartWithHistoricalData(symbol, period) {
         throw new Error('Virheellinen ajanjakso');
     }
 
-    for (const date in timeSeries) {
-      labels.push(date);
-      prices.push(parseFloat(timeSeries[date]['4. close']));
+    // Rajataan 1 viikon data (7 viimeisintä päivää)
+    if (period === '1-week') {
+      const dates = Object.keys(timeSeries).slice(0, 7); // Ota 7 viimeisintä päivää
+      dates.forEach((date) => {
+        labels.push(date);
+        prices.push(parseFloat(timeSeries[date]['4. close']));
+      });
+    } else {
+      for (const date in timeSeries) {
+        labels.push(date);
+        prices.push(parseFloat(timeSeries[date]['4. close']));
+      }
     }
 
     // Päivitä kaavio
@@ -221,6 +238,17 @@ document.getElementById('1-day').addEventListener('click', () => {
   const symbol = document.getElementById('stock-symbol').value.toUpperCase();
   if (symbol) {
     updateChartWithHistoricalData(symbol, '1-day');
+  } else {
+    alert('Valitse ensin osake syöttämällä sen symboli.');
+  }
+});
+
+document.getElementById('1-week').addEventListener('click', () => {
+  const symbol = document.getElementById('stock-symbol').value.toUpperCase();
+  if (symbol) {
+    updateChartWithHistoricalData(symbol, '1-week');
+  } else {
+    alert('Valitse ensin osake syöttämällä sen symboli.');
   }
 });
 
@@ -228,6 +256,8 @@ document.getElementById('1-month').addEventListener('click', () => {
   const symbol = document.getElementById('stock-symbol').value.toUpperCase();
   if (symbol) {
     updateChartWithHistoricalData(symbol, '1-month');
+  } else {
+    alert('Valitse ensin osake syöttämällä sen symboli.');
   }
 });
 
@@ -235,6 +265,8 @@ document.getElementById('1-year').addEventListener('click', () => {
   const symbol = document.getElementById('stock-symbol').value.toUpperCase();
   if (symbol) {
     updateChartWithHistoricalData(symbol, '1-year');
+  } else {
+    alert('Valitse ensin osake syöttämällä sen symboli.');
   }
 });
 

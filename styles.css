@@ -82,8 +82,8 @@ footer {
 }
 
 #priceChart {
-  max-width: 50%;
-  height: 50px; /* Pienennetty korkeus */
+  max-width: 20%;
+  height: 0px; /* Pienennetty korkeus */
 }
 
 #chart-controls {
