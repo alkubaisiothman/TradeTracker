@@ -8,7 +8,7 @@ const fetch = require('node-fetch'); // Tarvitaan API-kutsuja varten
 
 const app = express();
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:5000' })); // Salli pyynnöt tästä alkuperästä
 
 // Yhdistä MongoDB-tietokantaan
 mongoose.connect('mongodb://localhost:27017/tradetrack', {
@@ -55,12 +55,13 @@ app.get('/api/stock-data', async (req, res) => {
 
 // Hae historialliset tiedot Alpha Vantage -API:sta
 app.get('/api/historical-data', async (req, res) => {
-  const url = req.query.url;
-  if (!url) {
-    return res.status(400).send('URL puuttuu!');
+  const { symbol, period } = req.query;
+  if (!symbol || !period) {
+    return res.status(400).send('Symboli ja ajanjakso vaaditaan!');
   }
 
   try {
+    const url = `https://www.alphavantage.co/query?function=${getFunctionForPeriod(period)}&symbol=${symbol}&apikey=${process.env.ALPHA_VANTAGE_API_KEY}`;
     const response = await fetch(url);
     const data = await response.json();
     res.status(200).json(data);
@@ -69,6 +70,20 @@ app.get('/api/historical-data', async (req, res) => {
     res.status(500).send('Historiallisten tietojen haku epäonnistui.');
   }
 });
+
+function getFunctionForPeriod(period) {
+  switch (period) {
+    case '1-day':
+      return 'TIME_SERIES_INTRADAY&interval=60min';
+    case '1-week':
+    case '1-month':
+      return 'TIME_SERIES_DAILY';
+    case '1-year':
+      return 'TIME_SERIES_MONTHLY';
+    default:
+      throw new Error('Virheellinen ajanjakso');
+  }
+}
 
 // Tallenna hälytys
 app.post('/api/alerts', async (req, res) => {

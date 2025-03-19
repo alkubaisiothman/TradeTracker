@@ -153,40 +153,18 @@ document.getElementById('set-alert-button').addEventListener('click', async () =
   }
 });
 
-// Hae historialliset tiedot Alpha Vantage -API:sta
+// Hae historialliset tiedot backendin kautta
 async function fetchHistoricalData(symbol, period) {
-  const loadingDiv = document.getElementById('chart-loading');
-  loadingDiv.style.display = 'block'; // Näytä latausanimaatio
-
   try {
-    let url;
-    switch (period) {
-      case '1-day':
-        url = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=60min&apikey=${process.env.ALPHA_VANTAGE_API_KEY}`;
-        break;
-      case '1-week':
-        url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${process.env.ALPHA_VANTAGE_API_KEY}`;
-        break;
-      case '1-month':
-        url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${process.env.ALPHA_VANTAGE_API_KEY}`;
-        break;
-      case '1-year':
-        url = `https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=${symbol}&apikey=${process.env.ALPHA_VANTAGE_API_KEY}`;
-        break;
-      default:
-        throw new Error('Virheellinen ajanjakso');
-    }
-
-    const response = await fetch(`${BACKEND_URL}/api/historical-data?url=${encodeURIComponent(url)}`);
+    const response = await fetch(`${BACKEND_URL}/api/historical-data?symbol=${symbol}&period=${period}`);
     const data = await response.json();
     return data;
   } catch (error) {
     console.error('Virhe haettaessa historiallisia tietoja:', error);
     throw error;
-  } finally {
-    loadingDiv.style.display = 'none'; // Piilota latausanimaatio
   }
 }
+
 // Päivitä kaavio historiallisilla tiedoilla
 async function updateChartWithHistoricalData(symbol, period) {
   try {
@@ -194,7 +172,6 @@ async function updateChartWithHistoricalData(symbol, period) {
     const labels = [];
     const prices = [];
 
-    // Muokkaa dataa kaaviota varten
     let timeSeries;
     switch (period) {
       case '1-day':
@@ -211,22 +188,12 @@ async function updateChartWithHistoricalData(symbol, period) {
         throw new Error('Virheellinen ajanjakso');
     }
 
-    // Rajataan 1 viikon data (7 viimeisintä päivää)
-    if (period === '1-week') {
-      const dates = Object.keys(timeSeries).slice(0, 7); // Ota 7 viimeisintä päivää
-      dates.forEach((date) => {
-        labels.push(date);
-        prices.push(parseFloat(timeSeries[date]['4. close']));
-      });
-    } else {
-      for (const date in timeSeries) {
-        labels.push(date);
-        prices.push(parseFloat(timeSeries[date]['4. close']));
-      }
+    for (const date in timeSeries) {
+      labels.push(date);
+      prices.push(parseFloat(timeSeries[date]['4. close']));
     }
 
-    // Päivitä kaavio
-    updateChart(labels.reverse(), prices.reverse()); // Käännetään järjestys vanhimmasta uusimpaan
+    updateChart(labels.reverse(), prices.reverse());
   } catch (error) {
     console.error('Virhe päivitettäessä kaaviota:', error);
     alert('Historiallisten tietojen haku epäonnistui. Yritä uudelleen.');
@@ -272,8 +239,3 @@ document.getElementById('1-year').addEventListener('click', () => {
 
 // Alusta sovellus
 displayPopularStocks();
-
-// Näytä suosittujen osakkeiden hintakehitys alussa
-const initialLabels = ['1 viikko sitten', 'Nykyhetki']; // Esimerkki ajankohdista
-const initialPrices = [100, 105]; // Esimerkki hinnoista
-updateChart(initialLabels, initialPrices);
