@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TradeTrack - Hälytykset</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>TradeTrack</h1>
+    <p>Seuraa osakkeiden hintakehitystä ja saa hälytykset</p>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="index.html">Koti</a></li>
+      <li><a href="login.html">Kirjaudu sisään</a></li>
+      <li><a href="register.html">Rekisteröidy</a></li>
+      <li><a href="about.html">Tietoa meistä</a></li>
+      <li><a href="Alerts.html">Hälytykset</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <div class="container">
+      <!-- Vasen osio: Suositut osakkeet -->
+      <div class="left">
+        <section id="popular-stocks">
+          <h2>Suositut osakkeet</h2>
+          <div id="stock-list">
+            <!-- Tähän lisätään valmiit osakkeet -->
+          </div>
+        </section>
+      </div>
+
+      <!-- Oikea osio: Haku, valitun osakkeen tiedot ja kaavio -->
+      <div class="right">
+        <section id="stock-search">
+          <h2>Hae osakkeita</h2>
+          <input type="text" id="stock-symbol" placeholder="Syötä osakkeen symboli (esim. AAPL)">
+          <button id="search-button">Hae</button>
+        </section>
+
+        <section id="selected-stock">
+          <h2>Valitun osakkeen tiedot</h2>
+          <div id="stock-data">
+            <!-- Tähän tulee valitun osakkeen tiedot -->
+          </div>
+        </section>
+
+        <section id="stock-chart">
+          <h2>Hintakehitys</h2>
+          <div id="chart-controls">
+            <button id="1-day">1 päivä</button>
+            <button id="1-week">1 viikko</button>
+            <button id="1-month">1 kuukausi</button>
+            <button id="1-year">1 vuosi</button>
+          </div>
+          <canvas id="priceChart"></canvas>
+        </section>
+
+        <section id="alerts">
+          <h2>Aseta hälytykset</h2>
+          <input type="number" id="alert-price" placeholder="Hinta, jolla haluat hälytyksen">
+          <button id="set-alert-button">Aseta hälytys</button>
+          <p id="alert-status"></p>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2023 TradeTrack. Kaikki oikeudet pidätetään.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
