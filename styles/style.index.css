@@ -12,7 +12,7 @@ body {
 header {
   background-color: #112D4E; /* Logon tummansininen */
   color: #F9F9F9;
-  padding: 20px;
+  padding-top: 35px;
   text-align: center;
 }
 
@@ -39,6 +39,7 @@ nav ul {
   margin: 0;
   display: flex;
   justify-content: center;
+  align-items: center; /* Tasaa hakukenttä muiden linkkien kanssa */
   gap: 20px;
 }
 
@@ -57,6 +58,30 @@ nav ul li a {
 
 nav ul li a:hover {
   background-color: #3A6073; /* Hieman vaaleampi sininen hover-efekti */
+}
+
+nav form {
+  display: flex;
+  align-items: center; /* Varmistaa, että hakukenttä on linjassa muiden elementtien kanssa */
+}
+
+nav form input[type="text"] {
+  padding: 5px;
+  border-radius: 5px;
+  border: none;
+  width: 150px;
+}
+
+nav form button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: 5px; /* Lisää tilaa hakupainikkeen ja kentän väliin */
+}
+
+nav form button img {
+  width: 20px;
+  height: 20px;
 }
 
 section {
