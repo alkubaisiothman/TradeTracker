@@ -1,0 +1,83 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #0A192F; /* Tumma tausta, sopii logon tyyliin */
+  color: #E5E7EB; /* Vaalea teksti parempaan kontrastiin */
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  background-color: #112D4E; /* Logon tummansininen */
+  color: #F9F9F9;
+  padding: 20px;
+  text-align: center;
+}
+
+nav {
+  background-color: #1B3A57;
+  padding: 10px;
+  text-align: center;
+  position: fixed; /* Kiinnittää navigaation ruudun yläreunaan */
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000; /* Varmistaa, että se pysyy muiden elementtien päällä */
+}
+
+main {
+  flex: 1;
+  padding: 20px;
+  padding-top: 60px; /* Lisää tilaa, jotta sisältö ei jää navigaation alle */
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+nav ul li {
+  display: inline;
+}
+
+nav ul li a {
+  color: #F9F9F9;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+nav ul li a:hover {
+  background-color: #3A6073; /* Hieman vaaleampi sininen hover-efekti */
+}
+
+section {
+  margin-bottom: 20px;
+  background-color: #112D4E; /* Sama kuin header */
+  padding: 15px;
+  border-radius: 8px;
+}
+
+section h2 {
+  color: #17C3B2; /* Vihertävä aksenttiväri logosta */
+}
+
+footer {
+  background-color: #1B3A57;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  margin-top: auto;
+}
+
+footer p {
+  margin: 5px 0;
+}
