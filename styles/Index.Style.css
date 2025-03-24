@@ -1,0 +1,216 @@
+/* Yleiset tyylit */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #0A192F;
+  color: #E5E7EB;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* Header */
+.main-header {
+  background-color: #112D4E;
+  color: #F9F9F9;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header-logo {
+  width: 200px;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 2.5rem;
+  color: #17C3B2;
+}
+
+.header-subtitle {
+  margin: 0.5rem 0 0;
+  font-size: 1.1rem;
+  color: #E5E7EB;
+}
+
+/* Navigaatio */
+.main-navigation {
+  background-color: #1B3A57;
+  padding: 0.5rem 1rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.nav-item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.nav-link {
+  color: #F9F9F9;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+  background-color: #3A6073;
+  color: #FFFFFF;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.auth-link {
+  color: #F9F9F9;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.auth-link:hover {
+  background-color: #3A6073;
+}
+
+.logout-button {
+  background: none;
+  border: 1px solid #F9F9F9;
+  color: #F9F9F9;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.logout-button:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.user-greeting {
+  display: none;
+  margin-right: 1rem;
+  color: #F9F9F9;
+  font-weight: bold;
+}
+
+/* Pääsisältö */
+.content-main {
+  flex: 1;
+  padding: 2rem;
+  padding-top: 5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.section-title {
+  color: #17C3B2;
+  margin-top: 0;
+  font-size: 1.8rem;
+  border-bottom: 2px solid #3A6073;
+  padding-bottom: 0.5rem;
+}
+
+.features-section, .intro-section {
+  background-color: #112D4E;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.features-list {
+  padding-left: 1.5rem;
+}
+
+.feature-item {
+  margin-bottom: 0.8rem;
+  font-size: 1.1rem;
+}
+
+.intro-text {
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.primary-button, .secondary-button {
+  padding: 0.7rem 1.5rem;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.primary-button {
+  background-color: #17C3B2;
+  color: #0A192F;
+}
+
+.primary-button:hover {
+  background-color: #14a899;
+}
+
+.secondary-button {
+  background-color: transparent;
+  color: #17C3B2;
+  border: 2px solid #17C3B2;
+}
+
+.secondary-button:hover {
+  background-color: rgba(23, 195, 178, 0.1);
+}
+
+/* Footer */
+.main-footer {
+  background-color: #1B3A57;
+  color: white;
+  padding: 1.5rem 1rem;
+  margin-top: 2rem;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}

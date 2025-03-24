@@ -4,55 +4,73 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TradeTrack - Koti</title>
-  <link rel="stylesheet" href="/styles/style.index.css">
+  <link rel="stylesheet" href="/styles/Index.Style.css">
+  <link rel="icon" href="/kuvat/tradetrack.jpg" type="image/jpg">
 </head>
 <body>
-  <header>
-    <nav>
-      <ul>
-        <li><a href="index.html">Koti</a></li>
-        <li><a href="#introduction">Tietoa meistä</a></li>
-        <li><a href="/sivut/Alerts.html">Hälytykset</a></li>
-        <li><a href="/sivut/Register.html">Rekisteröidy</a></li>
-        <li><a href="/sivut/Login.html">Kirjaudu sisään</a></li>
-        <li>
-          <form action="/haku" method="get" style="display: inline;">
-            <input type="text" name="q" placeholder="Hae...">
-            <button type="submit" aria-label="Search">
-              <img src="/kuvat/search-icon.png" alt="Search Icon" style="width: 20px; height: 20px;">
-            </button>
-          </form>
-        </li>
-      </ul>
-    </nav>
-    <h1>TradeTrack</h1>
-    <img src="/kuvat/tradetrack.jpg" alt="TradeTrack Logo" width="200">
-    <p>Tervetuloa TradeTrackiin - parhaaseen työkaluun osakkeiden seurantaan ja hälytysten asettamiseen.</p>
+  <header class="main-header">
+    <div class="header-container">
+      <img src="/kuvat/tradetrack.jpg" alt="TradeTrack Logo" class="header-logo">
+      <div class="header-text">
+        <h1 class="header-title">TradeTrack</h1>
+        <p class="header-subtitle">Tervetuloa TradeTrackiin - parhaaseen työkaluun osakkeiden seurantaan</p>
+      </div>
+    </div>
   </header>
 
-  <main>
-    <section id="introduction">
-      <h2>Tietoa TradeTrackista</h2>
-      <p>Olemme kolme tietojenkäsittelyn tradenomiopiskelijaa, jotka suorittavat Company-Oriented Product Development Project 1 -opintojaksoa. Projektimme tavoitteena on kehittää käyttäjäystävällinen ja tehokas työkalu sijoittajille osakkeiden hintaliikkeiden seuraamiseen.
+  <nav class="main-navigation">
+    <ul class="nav-list">
+      <li class="nav-item"><a href="index.html" class="nav-link active">Koti</a></li>
+      <li class="nav-item"><a href="about.html" class="nav-link">Tietoa meistä</a></li>
+      <li id="user-greeting" class="nav-item user-greeting"></li>
+      <li class="nav-item auth-buttons">
+        <a href="login.html" id="login-btn" class="auth-link">Kirjaudu sisään</a>
+        <a href="register.html" id="register-btn" class="auth-link">Rekisteröidy</a>
+        <a href="Alerts.html" id="alerts-btn" class="auth-link">Hälytykset</a>
+        <button id="logout-btn" class="logout-button">Kirjaudu ulos</button>
+      </li>
+    </ul>
+  </nav>
 
-        Sovelluksemme, TradeTrack, tarjoaa reaaliaikaisen osakekurssiseurannan ja mahdollisuuden asettaa hälytyksiä ennalta määritellyille hintatasoille. Näin käyttäjät voivat reagoida markkinoiden muutoksiin nopeasti ja tehdä parempia sijoituspäätöksiä. TradeTrack on suunniteltu sekä aloitteleville että kokeneille sijoittajille, ja sen tavoitteena on tarjota selkeä, helppokäyttöinen ja luotettava tapa pysyä ajan tasalla osakemarkkinoista.
-        
-        <br> <br>Tekijät: Omar Al-Kubaisi, Ivan Jirki ja Othman Al-Kubaisi</p>
+  <main class="content-main">
+    <section id="features" class="features-section">
+      <h2 class="section-title">Ominaisuudet</h2>
+      <ul class="features-list">
+        <li class="feature-item">✅ Reaaliaikainen osakkeiden hintaseuranta</li>
+        <li class="feature-item">✅ Hälytysten asettaminen halutuille hinnoille</li>
+        <li class="feature-item">✅ Yksityiskohtaiset historialliset tiedot</li>
+        <li class="feature-item">✅ Käyttäjäystävällinen rajapinta</li>
+      </ul>
     </section>
 
-    <section id="features">
-      <h2>Ominaisuudet</h2>
-      <ul>
-        <li>Reaaliaikainen osakkeiden hintaseuranta</li>
-        <li>Hälytysten asettaminen halutuille hinnoille</li>
-        <li>Yksityiskohtaiset osaketiedot ja historialliset tiedot</li>
-        <li>Helppokäyttöinen käyttöliittymä</li>
-      </ul>
+    <section id="introduction" class="intro-section">
+      <h2 class="section-title">Tietoa TradeTrackista</h2>
+      <div class="intro-content">
+        <p class="intro-text">TradeTrack on innovatiivinen alusta, joka tarjoaa käyttäjilleen täydelliset työkalut osakemarkkinoiden seuraamiseen. Sovelluksemme on suunniteltu erityisesti suomalaisille sijoittajille.</p>
+        <div class="action-buttons">
+          <a href="register.html" class="primary-button">Aloita nyt</a>
+          <a href="about.html" class="secondary-button">Lue lisää</a>
+        </div>
+      </div>
     </section>
   </main>
 
-  <footer>
-    <p>© 2025 TradeTrack. Kaikki oikeudet pidätetään. Group 14 </p>
+  <footer class="main-footer">
+    <div class="footer-container">
+      <p class="copyright-text">© <span id="current-year">2023</span> TradeTrack. Kaikki oikeudet pidätetään.</p>
+      <div class="footer-links">
+        <a href="privacy.html" class="footer-link">Tietosuojaseloste</a>
+        <a href="terms.html" class="footer-link">Käyttöehdot</a>
+      </div>
+    </div>
   </footer>
+
+  <!-- JavaScript -->
+  <script src="/script/shared.js"></script>
+  <script src="/script/IndexScript.js"></script>
+  <script>
+    // Päivitä copyright-vuosi
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
