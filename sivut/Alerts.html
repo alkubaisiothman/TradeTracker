@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TradeTrack - Hälytykset</title>
   <link rel="stylesheet" href="/styles/Alerts.Style.css">
+  <link rel="icon" href="/kuvat/tradetrack.jpg" type="image/jpg">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <!-- Yhdenmukaistettu navigaatio index.html:n kanssa -->
+  <!-- Päivitetty navigaatio -->
   <nav class="main-navigation">
     <ul class="nav-list">
       <li class="nav-item"><a href="/index.html" class="nav-link">Koti</a></li>
@@ -25,45 +26,74 @@
 
   <main class="content-main">
     <div class="alert-container">
+      <!-- Vasen osio: Suosituimmat osakkeet -->
       <div class="alert-left">
         <section id="popular-stocks" class="alert-section">
           <h2 class="section-title">Suositut osakkeet</h2>
-          <div id="stock-list" class="stock-list"></div>
+          <div id="stock-list" class="stock-list">
+            <!-- Lisätty latausanimaatio -->
+            <div class="loading-spinner" id="stocks-loading"></div>
+          </div>
         </section>
       </div>
 
+      <!-- Oikea osio: Haku ja tiedot -->
       <div class="alert-right">
+        <!-- Osakehakukenttä -->
         <section id="stock-search" class="alert-section">
           <h2 class="section-title">Hae osakkeita</h2>
           <div class="search-container">
-            <input type="text" id="stock-symbol" placeholder="Syötä osakkeen symboli (esim. AAPL)" class="search-input">
-            <button id="search-button" class="search-button">Hae</button>
+            <input type="text" id="stock-symbol" placeholder="Syötä osakkeen symboli (esim. AAPL, SAMPO.HE)" 
+                   class="search-input" autocomplete="off">
+            <button id="search-button" class="search-button">
+              <span id="search-text">Hae</span>
+              <span id="search-spinner" class="loading-spinner small"></span>
+            </button>
           </div>
         </section>
 
+        <!-- Valitun osakkeen tiedot -->
         <section id="selected-stock" class="alert-section">
           <h2 class="section-title">Osakkeen tiedot</h2>
-          <div id="stock-data" class="stock-data"></div>
+          <div id="stock-data" class="stock-data">
+            <p class="no-data-message">Valitse osake nähdäksesi tiedot</p>
+          </div>
         </section>
 
+        <!-- Hintakaavio -->
         <section id="stock-chart" class="alert-section">
           <h2 class="section-title">Hintakehitys</h2>
           <div id="chart-controls" class="chart-controls">
             <button id="1-day" class="chart-button">1 päivä</button>
             <button id="1-week" class="chart-button">1 viikko</button>
-            <button id="1-month" class="chart-button">1 kuukausi</button>
+            <button id="1-month" class="chart-button active">1 kuukausi</button>
             <button id="1-year" class="chart-button">1 vuosi</button>
           </div>
-          <canvas id="priceChart" class="price-chart"></canvas>
+          <div class="chart-container">
+            <canvas id="priceChart" class="price-chart"></canvas>
+            <div id="chart-loading" class="loading-spinner"></div>
+            <p id="chart-message" class="no-data-message">Kaavio näytetään kun osake on valittu</p>
+          </div>
         </section>
 
+        <!-- Hälytysten asetus -->
         <section id="alerts" class="alert-section">
           <h2 class="section-title">Aseta hälytykset</h2>
           <div class="alert-form">
-            <input type="number" id="alert-price" placeholder="Hinta (USD)" class="alert-input">
-            <button id="set-alert-button" class="alert-button">Aseta hälytys</button>
+            <input type="number" id="alert-price" placeholder="Hinta (USD/EUR)" 
+                   class="alert-input" step="0.01" min="0">
+            <button id="set-alert-button" class="alert-button">
+              <span id="alert-text">Aseta hälytys</span>
+              <span id="alert-spinner" class="loading-spinner small"></span>
+            </button>
           </div>
           <p id="alert-status" class="alert-status"></p>
+          <div id="active-alerts" class="active-alerts-container">
+            <h3>Aktiiviset hälytykset</h3>
+            <div id="alerts-list" class="alerts-list">
+              <!-- Hälytykset listataan tähän -->
+            </div>
+          </div>
         </section>
       </div>
     </div>
@@ -72,6 +102,10 @@
   <footer class="main-footer">
     <div class="footer-container">
       <p class="copyright-text">© <span id="current-year">2025</span> TradeTrack. Group 14</p>
+      <div class="footer-links">
+        <a href="/sivut/privacy.html" class="footer-link">Tietosuojaseloste</a>
+        <a href="/sivut/terms.html" class="footer-link">Käyttöehdot</a>
+      </div>
     </div>
   </footer>
 
