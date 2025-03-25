@@ -1,0 +1,307 @@
+/* ===== YLEISET TYYLIT / GLOBAL STYLES ===== */
+:root {
+    --primary-bg: #0A192F;         /* Taustaväri */
+    --secondary-bg: #112D4E;       /* Toissijainen tausta */
+    --nav-bg: #1B3A57;            /* Navigaation tausta */
+    --accent-color: #17C3B2;       /* Korostusväri */
+    --text-primary: #E5E7EB;       /* Pääteksti */
+    --text-secondary: #F9F9F9;     /* Toissijainen teksti */
+    --border-color: #3A6073;       /* Reunusten väri */
+    --box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    --transition: all 0.3s ease;
+  }
+  
+  body {
+    font-family: 'Arial', sans-serif;
+    background-color: var(--primary-bg);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+  
+  /* ===== HEADER STYLES ===== */
+  .main-header {
+    background-color: var(--secondary-bg);
+    color: var(--text-secondary);
+    padding: 2rem 1rem;
+    text-align: center;
+    margin-top: 60px; /* Vältetään navigaation alle jääminen */
+  }
+  
+  .header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .header-logo {
+    width: 200px;
+    height: auto;
+    margin-bottom: 1rem;
+  }
+  
+  .header-title {
+    margin: 0;
+    font-size: 2.5rem;
+    color: var(--accent-color);
+  }
+  
+  .header-subtitle {
+    margin: 0.5rem 0 0;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+  }
+  
+  /* ===== NAVIGAATIO / NAVIGATION ===== */
+  .main-navigation {
+    background-color: var(--nav-bg);
+    padding: 0.5rem 1rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+  
+  .nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .nav-item {
+    display: inline-flex;
+    align-items: center;
+  }
+  
+  .nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: var(--transition);
+  }
+  
+  .nav-link:hover, 
+  .nav-link.active {
+    background-color: var(--border-color);
+    color: var(--text-secondary);
+  }
+  
+  .auth-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+  
+  .auth-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: var(--transition);
+  }
+  
+  .auth-link:hover {
+    background-color: var(--border-color);
+  }
+  
+  .logout-button {
+    background: none;
+    border: 1px solid var(--text-secondary);
+    color: var(--text-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: var(--transition);
+  }
+  
+  .logout-button:hover {
+    background: rgba(255,255,255,0.1);
+  }
+  
+  .user-greeting {
+    display: none; /* Piilotettu oletuksena, näytetään JS:llä kirjautuessa */
+    margin-right: 1rem;
+    color: var(--text-secondary);
+    font-weight: bold;
+  }
+  
+  /* ===== PÄÄSISÄLTÖ / MAIN CONTENT ===== */
+  .content-main {
+    flex: 1;
+    padding: 2rem;
+    padding-top: 5rem; /* Tilaa kiinteälle navigaatiolle */
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  
+  .section-title {
+    color: var(--accent-color);
+    margin-top: 0;
+    font-size: 1.8rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+  }
+  
+  /* Yhteiset osiot */
+  .features-section, 
+  .intro-section,
+  .content-section { /* Yleinen sisältöosio muille sivuille */
+    background-color: var(--secondary-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    box-shadow: var(--box-shadow);
+  }
+  
+  .features-list {
+    padding-left: 1.5rem;
+    list-style-type: none;
+  }
+  
+  .feature-item {
+    margin-bottom: 0.8rem;
+    font-size: 1.1rem;
+    position: relative;
+    padding-left: 1.5rem;
+  }
+  
+  .feature-item::before {
+    content: "✓";
+    color: var(--accent-color);
+    position: absolute;
+    left: 0;
+  }
+  
+  .intro-text,
+  .content-text { /* Yleinen tekstityyli muille sivuille */
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+  
+  /* Painikkeet */
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .primary-button, 
+  .secondary-button {
+    padding: 0.7rem 1.5rem;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: var(--transition);
+  }
+  
+  .primary-button {
+    background-color: var(--accent-color);
+    color: var(--primary-bg);
+  }
+  
+  .primary-button:hover {
+    background-color: #14a899;
+  }
+  
+  .secondary-button {
+    background-color: transparent;
+    color: var(--accent-color);
+    border: 2px solid var(--accent-color);
+  }
+  
+  .secondary-button:hover {
+    background-color: rgba(23, 195, 178, 0.1);
+  }
+  
+  /* ===== FOOTER STYLES ===== */
+  .main-footer {
+    background-color: var(--nav-bg);
+    color: var(--text-secondary);
+    padding: 1.5rem 1rem;
+    margin-top: 2rem;
+  }
+  
+  .footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  
+  .footer-links {
+    margin-top: 1rem;
+  }
+  
+  .footer-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    margin: 0 1rem;
+    transition: var(--transition);
+  }
+  
+  .footer-link:hover {
+    color: var(--accent-color);
+  }
+  
+  /* ===== RESPONSIIVISUUS / RESPONSIVE STYLES ===== */
+  @media (max-width: 768px) {
+    .header-title {
+      font-size: 2rem;
+    }
+    
+    .nav-list {
+      gap: 0.5rem;
+    }
+    
+    .auth-buttons {
+      gap: 0.5rem;
+    }
+    
+    .content-main {
+      padding: 1rem;
+      padding-top: 4rem;
+    }
+    
+    .action-buttons {
+      flex-direction: column;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .header-title {
+      font-size: 1.8rem;
+    }
+    
+    .header-subtitle {
+      font-size: 1rem;
+    }
+    
+    .nav-list {
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    
+    .auth-buttons {
+      margin-top: 0.5rem;
+    }
+  }

@@ -4,95 +4,83 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TradeTrack - Hälytykset</title>
-  <link rel="stylesheet" href="/styles/style.index.css">
+  <link rel="stylesheet" href="/styles/Alerts.Style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <header>
-    <nav>
-      <ul>
-        <li><a href="/index.html">Koti</a></li>
-        <li><a href="#introduction">Tietoa meistä</a></li>
-        <li><a href="/sivut/Alerts.html">Hälytykset</a></li>
-        <li><a href="/sivut/Register.html">Rekisteröidy</a></li>
-        <li><a href="/sivut/Login.html">Kirjaudu sisään</a></li>
-        <li>
-          <form action="/haku" method="get" style="display: inline;">
-            <input type="text" name="q" placeholder="Hae...">
-            <button type="submit" aria-label="Search">
-              <img src="/kuvat/search-icon.png" alt="Search Icon" style="width: 20px; height: 20px;">
-            </button>
-          </form>
-        </li>
-      </ul>
-    </nav>
-    <h1>TradeTrack</h1>
-    <img src="/kuvat/tradetrack.jpg" alt="TradeTrack Logo" width="200">
-    <p>Tervetuloa TradeTrackiin - parhaaseen työkaluun osakkeiden seurantaan ja hälytysten asettamiseen.</p>
-  </header>
-
-  <nav>
-    <ul>
-      <li><a href="/index.html">Koti</a></li>
-      <li><a href="Login.html">Kirjaudu sisään</a></li>
-      <li><a href="Register.html">Rekisteröidy</a></li>
-      <li><a href="about.html">Tietoa meistä</a></li>
-      <li><a href="Alerts.html">Hälytykset</a></li>
+  <!-- Yhdenmukaistettu navigaatio index.html:n kanssa -->
+  <nav class="main-navigation">
+    <ul class="nav-list">
+      <li class="nav-item"><a href="/index.html" class="nav-link">Koti</a></li>
+      <li class="nav-item"><a href="/sivut/about.html" class="nav-link">Tietoa meistä</a></li>
+      <li id="user-greeting" class="nav-item user-greeting"></li>
+      <li class="nav-item auth-buttons">
+        <a href="/sivut/Login.html" id="login-btn" class="auth-link">Kirjaudu sisään</a>
+        <a href="/sivut/Register.html" id="register-btn" class="auth-link">Rekisteröidy</a>
+        <a href="/sivut/Alerts.html" id="alerts-btn" class="auth-link active">Hälytykset</a>
+        <button id="logout-btn" class="logout-button">Kirjaudu ulos</button>
+      </li>
     </ul>
   </nav>
 
-  <main>
-    <div class="container">
-      <!-- Vasen osio: Suositut osakkeet -->
-      <div class="left">
-        <section id="popular-stocks">
-          <h2>Suositut osakkeet</h2>
-          <div id="stock-list">
-            <!-- Tähän lisätään valmiit osakkeet -->
-          </div>
+  <main class="content-main">
+    <div class="alert-container">
+      <div class="alert-left">
+        <section id="popular-stocks" class="alert-section">
+          <h2 class="section-title">Suositut osakkeet</h2>
+          <div id="stock-list" class="stock-list"></div>
         </section>
       </div>
 
-      <!-- Oikea osio: Haku, valitun osakkeen tiedot ja kaavio -->
-      <div class="right">
-        <section id="stock-search">
-          <h2>Hae osakkeita</h2>
-          <input type="text" id="stock-symbol" placeholder="Syötä osakkeen symboli (esim. AAPL)">
-          <button id="search-button">Hae</button>
-        </section>
-
-        <section id="selected-stock">
-          <h2>Valitun osakkeen tiedot</h2>
-          <div id="stock-data">
-            <!-- Tähän tulee valitun osakkeen tiedot -->
+      <div class="alert-right">
+        <section id="stock-search" class="alert-section">
+          <h2 class="section-title">Hae osakkeita</h2>
+          <div class="search-container">
+            <input type="text" id="stock-symbol" placeholder="Syötä osakkeen symboli (esim. AAPL)" class="search-input">
+            <button id="search-button" class="search-button">Hae</button>
           </div>
         </section>
 
-        <section id="stock-chart">
-          <h2>Hintakehitys</h2>
-          <div id="chart-controls">
-            <button id="1-day">1 päivä</button>
-            <button id="1-week">1 viikko</button>
-            <button id="1-month">1 kuukausi</button>
-            <button id="1-year">1 vuosi</button>
-          </div>
-          <canvas id="priceChart"></canvas>
+        <section id="selected-stock" class="alert-section">
+          <h2 class="section-title">Osakkeen tiedot</h2>
+          <div id="stock-data" class="stock-data"></div>
         </section>
 
-        <section id="alerts">
-          <h2>Aseta hälytykset</h2>
-          <input type="number" id="alert-price" placeholder="Hinta, jolla haluat hälytyksen">
-          <button id="set-alert-button">Aseta hälytys</button>
-          <p id="alert-status"></p>
+        <section id="stock-chart" class="alert-section">
+          <h2 class="section-title">Hintakehitys</h2>
+          <div id="chart-controls" class="chart-controls">
+            <button id="1-day" class="chart-button">1 päivä</button>
+            <button id="1-week" class="chart-button">1 viikko</button>
+            <button id="1-month" class="chart-button">1 kuukausi</button>
+            <button id="1-year" class="chart-button">1 vuosi</button>
+          </div>
+          <canvas id="priceChart" class="price-chart"></canvas>
+        </section>
+
+        <section id="alerts" class="alert-section">
+          <h2 class="section-title">Aseta hälytykset</h2>
+          <div class="alert-form">
+            <input type="number" id="alert-price" placeholder="Hinta (USD)" class="alert-input">
+            <button id="set-alert-button" class="alert-button">Aseta hälytys</button>
+          </div>
+          <p id="alert-status" class="alert-status"></p>
         </section>
       </div>
     </div>
   </main>
 
-  <footer>
-    <p>© 2025 TradeTrack. Kaikki oikeudet pidätetään. Group 14 </p>
+  <footer class="main-footer">
+    <div class="footer-container">
+      <p class="copyright-text">© <span id="current-year">2025</span> TradeTrack. Group 14</p>
+    </div>
   </footer>
 
-  <script src="script.js"></script>
+  <!-- JavaScript -->
+  <script type="module" src="/script/Shared.js"></script>
+  <script type="module" src="/script/AlertsScript.js"></script>
+  <script>
+    // Päivitä copyright-vuosi
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>

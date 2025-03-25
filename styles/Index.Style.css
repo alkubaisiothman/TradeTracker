@@ -1,8 +1,20 @@
-/* Yleiset tyylit */
+/* ===== YLEISET TYYLIT / GLOBAL STYLES ===== */
+:root {
+  --primary-bg: #0A192F;         /* Taustaväri */
+  --secondary-bg: #112D4E;       /* Toissijainen tausta */
+  --nav-bg: #1B3A57;            /* Navigaation tausta */
+  --accent-color: #17C3B2;       /* Korostusväri */
+  --text-primary: #E5E7EB;       /* Pääteksti */
+  --text-secondary: #F9F9F9;     /* Toissijainen teksti */
+  --border-color: #3A6073;       /* Reunusten väri */
+  --box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  --transition: all 0.3s ease;
+}
+
 body {
   font-family: 'Arial', sans-serif;
-  background-color: #0A192F;
-  color: #E5E7EB;
+  background-color: var(--primary-bg);
+  color: var(--text-primary);
   margin: 0;
   padding: 0;
   display: flex;
@@ -11,12 +23,13 @@ body {
   line-height: 1.6;
 }
 
-/* Header */
+/* ===== HEADER STYLES ===== */
 .main-header {
-  background-color: #112D4E;
-  color: #F9F9F9;
+  background-color: var(--secondary-bg);
+  color: var(--text-secondary);
   padding: 2rem 1rem;
   text-align: center;
+  margin-top: 60px; /* Vältetään navigaation alle jääminen */
 }
 
 .header-container {
@@ -36,18 +49,18 @@ body {
 .header-title {
   margin: 0;
   font-size: 2.5rem;
-  color: #17C3B2;
+  color: var(--accent-color);
 }
 
 .header-subtitle {
   margin: 0.5rem 0 0;
   font-size: 1.1rem;
-  color: #E5E7EB;
+  color: var(--text-primary);
 }
 
-/* Navigaatio */
+/* ===== NAVIGAATIO / NAVIGATION ===== */
 .main-navigation {
-  background-color: #1B3A57;
+  background-color: var(--nav-bg);
   padding: 0.5rem 1rem;
   position: fixed;
   top: 0;
@@ -66,6 +79,8 @@ body {
   align-items: center;
   gap: 1.5rem;
   flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .nav-item {
@@ -74,17 +89,18 @@ body {
 }
 
 .nav-link {
-  color: #F9F9F9;
+  color: var(--text-secondary);
   text-decoration: none;
   font-weight: bold;
   padding: 0.5rem 1rem;
   border-radius: 5px;
-  transition: all 0.3s ease;
+  transition: var(--transition);
 }
 
-.nav-link:hover, .nav-link.active {
-  background-color: #3A6073;
-  color: #FFFFFF;
+.nav-link:hover, 
+.nav-link.active {
+  background-color: var(--border-color);
+  color: var(--text-secondary);
 }
 
 .auth-buttons {
@@ -94,26 +110,26 @@ body {
 }
 
 .auth-link {
-  color: #F9F9F9;
+  color: var(--text-secondary);
   text-decoration: none;
   padding: 0.5rem 1rem;
   border-radius: 5px;
-  transition: background-color 0.3s;
+  transition: var(--transition);
 }
 
 .auth-link:hover {
-  background-color: #3A6073;
+  background-color: var(--border-color);
 }
 
 .logout-button {
   background: none;
-  border: 1px solid #F9F9F9;
-  color: #F9F9F9;
+  border: 1px solid var(--text-secondary);
+  color: var(--text-secondary);
   padding: 0.5rem 1rem;
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
-  transition: all 0.3s;
+  transition: var(--transition);
 }
 
 .logout-button:hover {
@@ -121,70 +137,87 @@ body {
 }
 
 .user-greeting {
-  display: none;
+  display: none; /* Piilotettu oletuksena, näytetään JS:llä kirjautuessa */
   margin-right: 1rem;
-  color: #F9F9F9;
+  color: var(--text-secondary);
   font-weight: bold;
 }
 
-/* Pääsisältö */
+/* ===== PÄÄSISÄLTÖ / MAIN CONTENT ===== */
 .content-main {
   flex: 1;
   padding: 2rem;
-  padding-top: 5rem;
+  padding-top: 5rem; /* Tilaa kiinteälle navigaatiolle */
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
 }
 
 .section-title {
-  color: #17C3B2;
+  color: var(--accent-color);
   margin-top: 0;
   font-size: 1.8rem;
-  border-bottom: 2px solid #3A6073;
+  border-bottom: 2px solid var(--border-color);
   padding-bottom: 0.5rem;
 }
 
-.features-section, .intro-section {
-  background-color: #112D4E;
+/* Yhteiset osiot */
+.features-section, 
+.intro-section,
+.content-section { /* Yleinen sisältöosio muille sivuille */
+  background-color: var(--secondary-bg);
   padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 2rem;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: var(--box-shadow);
 }
 
 .features-list {
   padding-left: 1.5rem;
+  list-style-type: none;
 }
 
 .feature-item {
   margin-bottom: 0.8rem;
   font-size: 1.1rem;
+  position: relative;
+  padding-left: 1.5rem;
 }
 
-.intro-text {
+.feature-item::before {
+  content: "✓";
+  color: var(--accent-color);
+  position: absolute;
+  left: 0;
+}
+
+.intro-text,
+.content-text { /* Yleinen tekstityyli muille sivuille */
   margin-bottom: 1.5rem;
   font-size: 1.1rem;
   line-height: 1.7;
 }
 
+/* Painikkeet */
 .action-buttons {
   display: flex;
   gap: 1rem;
   margin-top: 1.5rem;
+  flex-wrap: wrap;
 }
 
-.primary-button, .secondary-button {
+.primary-button, 
+.secondary-button {
   padding: 0.7rem 1.5rem;
   border-radius: 5px;
   text-decoration: none;
   font-weight: bold;
-  transition: all 0.3s;
+  transition: var(--transition);
 }
 
 .primary-button {
-  background-color: #17C3B2;
-  color: #0A192F;
+  background-color: var(--accent-color);
+  color: var(--primary-bg);
 }
 
 .primary-button:hover {
@@ -193,18 +226,18 @@ body {
 
 .secondary-button {
   background-color: transparent;
-  color: #17C3B2;
-  border: 2px solid #17C3B2;
+  color: var(--accent-color);
+  border: 2px solid var(--accent-color);
 }
 
 .secondary-button:hover {
   background-color: rgba(23, 195, 178, 0.1);
 }
 
-/* Footer */
+/* ===== FOOTER STYLES ===== */
 .main-footer {
-  background-color: #1B3A57;
-  color: white;
+  background-color: var(--nav-bg);
+  color: var(--text-secondary);
   padding: 1.5rem 1rem;
   margin-top: 2rem;
 }
@@ -213,4 +246,62 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   text-align: center;
+}
+
+.footer-links {
+  margin-top: 1rem;
+}
+
+.footer-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  margin: 0 1rem;
+  transition: var(--transition);
+}
+
+.footer-link:hover {
+  color: var(--accent-color);
+}
+
+/* ===== RESPONSIIVISUUS / RESPONSIVE STYLES ===== */
+@media (max-width: 768px) {
+  .header-title {
+    font-size: 2rem;
+  }
+  
+  .nav-list {
+    gap: 0.5rem;
+  }
+  
+  .auth-buttons {
+    gap: 0.5rem;
+  }
+  
+  .content-main {
+    padding: 1rem;
+    padding-top: 4rem;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-title {
+    font-size: 1.8rem;
+  }
+  
+  .header-subtitle {
+    font-size: 1rem;
+  }
+  
+  .nav-list {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  
+  .auth-buttons {
+    margin-top: 0.5rem;
+  }
 }

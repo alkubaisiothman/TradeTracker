@@ -6,6 +6,12 @@
   <title>TradeTrack - Koti</title>
   <link rel="stylesheet" href="/styles/Index.Style.css">
   <link rel="icon" href="/kuvat/tradetrack.jpg" type="image/jpg">
+  <style>
+    /* Lisätty sileä scrollaus */
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
 </head>
 <body>
   <header class="main-header">
@@ -21,12 +27,12 @@
   <nav class="main-navigation">
     <ul class="nav-list">
       <li class="nav-item"><a href="index.html" class="nav-link active">Koti</a></li>
-      <li class="nav-item"><a href="about.html" class="nav-link">Tietoa meistä</a></li>
+      <li class="nav-item"><a href="#introduction" class="nav-link">Tietoa meistä</a></li> <!-- Muutettu linkki -->
       <li id="user-greeting" class="nav-item user-greeting"></li>
       <li class="nav-item auth-buttons">
-        <a href="login.html" id="login-btn" class="auth-link">Kirjaudu sisään</a>
-        <a href="register.html" id="register-btn" class="auth-link">Rekisteröidy</a>
-        <a href="Alerts.html" id="alerts-btn" class="auth-link">Hälytykset</a>
+        <a href="./sivut/Login.html" id="login-btn" class="auth-link">Kirjaudu sisään</a>
+        <a href="./sivut/Register.html" id="register-btn" class="auth-link">Rekisteröidy</a>
+        <a href="./sivut/Alerts.html" id="alerts-btn" class="auth-link">Hälytykset</a>
         <button id="logout-btn" class="logout-button">Kirjaudu ulos</button>
       </li>
     </ul>
@@ -44,12 +50,11 @@
     </section>
 
     <section id="introduction" class="intro-section">
-      <h2 class="section-title">Tietoa TradeTrackista</h2>
+      <h2 class="section-title">Tradetrack – innovatiivinen osakeseuranta-alusta sijoittajille</h2>
       <div class="intro-content">
-        <p class="intro-text">TradeTrack on innovatiivinen alusta, joka tarjoaa käyttäjilleen täydelliset työkalut osakemarkkinoiden seuraamiseen. Sovelluksemme on suunniteltu erityisesti suomalaisille sijoittajille.</p>
+        <p class="intro-text">Olemme tietojenkäsittelyn opiskelijoita, ja tämänhetkinen projektimme on osa Company-Oriented Product Development Project 1 -opintokokonaisuutta. Kehittelemme Tradetrackia, uudenlaista alustaa, joka tarjoaa käyttäjilleen intuitiiviset ja monipuoliset työkalut osakemarkkinoiden seuraamiseen. Tradetrack on suunniteltu erityisesti suomalaisille sijoittajille, ja sen tavoitteena on tehdä markkinatiedon hallitsemisesta helppoa ja tehokasta.</p>
         <div class="action-buttons">
-          <a href="register.html" class="primary-button">Aloita nyt</a>
-          <a href="about.html" class="secondary-button">Lue lisää</a>
+          <a href="./sivut/Register.html" class="primary-button">Aloita nyt</a>
         </div>
       </div>
     </section>
