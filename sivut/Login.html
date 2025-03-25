@@ -3,37 +3,84 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TradeTrack - Koti</title>
+  <title>TradeTrack - Kirjaudu sisään</title>
   <link rel="stylesheet" href="/styles/Login.Style.css">
+  <link rel="icon" href="/kuvat/tradetrack.jpg" type="image/jpg">
 </head>
 <body>
-  <header>
-    <nav>
-      <ul>
-        <li><a href="/index.html">Koti</a></li>
-        <li><a href="#introduction">Tietoa meistä</a></li>
-        <li><a href="/sivut/Alerts.html">Hälytykset</a></li>
-        <li><a href="/sivut/Register.html">Rekisteröidy</a></li>
-        <li><a href="/sivut/Login.html">Kirjaudu sisään</a></li>
-        <li>
-          <form action="/haku" method="get" style="display: inline;">
-            <input type="text" name="q" placeholder="Hae...">
-            <button type="submit" aria-label="Search">
-              <img src="/kuvat/search-icon.png" alt="Search Icon" style="width: 20px; height: 20px;">
-            </button>
-          </form>
-        </li>
-      </ul>
-    </nav>
-    <h1>TradeTrack</h1>
-    <img src="/kuvat/tradetrack.jpg" alt="TradeTrack Logo" width="200">
-    <p>Tervetuloa TradeTrackiin - parhaaseen työkaluun osakkeiden seurantaan ja hälytysten asettamiseen.</p>
-  </header>
-  <main>
+  <nav class="main-navigation">
+    <ul class="nav-list">
+      <li class="nav-item"><a href="/index.html" class="nav-link">Koti</a></li>
+      <li class="nav-item"><a href="/sivut/about.html" class="nav-link">Tietoa meistä</a></li>
+      <li class="nav-item auth-buttons">
+        <a href="/sivut/Login.html" id="login-btn" class="auth-link active">Kirjaudu sisään</a>
+        <a href="/sivut/Register.html" id="register-btn" class="auth-link">Rekisteröidy</a>
+      </li>
+    </ul>
+  </nav>
+
+  <main class="content-main">
+    <div class="login-container">
+      <div class="login-form">
+        <h1 class="section-title">Kirjaudu sisään</h1>
+        
+        <!-- Viestialue rekisteröinnin onnistumiselle -->
+        <div id="registration-success" class="success-message" style="display: none;">
+          Rekisteröinti onnistui! Voit nyt kirjautua sisään.
+        </div>
+        
+        <!-- Viestialue virhetilanteille -->
+        <div id="login-error" class="error-message" style="display: none;"></div>
+        
+        <form id="login-form" class="auth-form">
+          <div class="form-group">
+            <label for="email">Sähköposti</label>
+            <input type="email" id="email" name="email" required 
+                   placeholder="syötä sähköpostiosoitteesi">
+            <small class="error-message" id="email-error"></small>
+          </div>
+          
+          <div class="form-group">
+            <label for="password">Salasana</label>
+            <input type="password" id="password" name="password" required 
+                   placeholder="syötä salasanasi">
+            <small class="error-message" id="password-error"></small>
+          </div>
+          
+          <div class="form-options">
+            <label class="remember-me">
+              <input type="checkbox" id="remember-me" name="remember-me">
+              <span>Muista minut</span>
+            </label>
+            <a href="/sivut/ForgotPassword.html" class="forgot-password">Unohditko salasanasi?</a>
+          </div>
+          
+          <button type="submit" class="primary-button" id="login-button">
+            <span id="login-text">Kirjaudu sisään</span>
+            <span id="login-spinner" class="loading-spinner small"></span>
+          </button>
+        </form>
+        
+        <div class="auth-footer">
+          <p>Eikö sinulla ole tiliä? <a href="/sivut/Register.html" class="auth-link">Rekisteröidy tästä</a></p>
+        </div>
+      </div>
+    </div>
   </main>
 
-  <footer>
-    <p>© 2025 TradeTrack. Kaikki oikeudet pidätetään. Group 14 </p>
+  <footer class="main-footer">
+    <div class="footer-container">
+      <p class="copyright-text">© <span id="current-year">2025</span> TradeTrack. Group 14</p>
+      <div class="footer-links">
+        <a href="/sivut/privacy.html" class="footer-link">Tietosuojaseloste</a>
+        <a href="/sivut/terms.html" class="footer-link">Käyttöehdot</a>
+      </div>
+    </div>
   </footer>
+
+  <script type="module" src="/script/LoginScript.js"></script>
+  <script>
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
