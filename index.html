@@ -27,14 +27,15 @@
   <nav class="main-navigation">
     <ul class="nav-list">
       <li class="nav-item"><a href="index.html" class="nav-link active">Koti</a></li>
-      <li class="nav-item"><a href="#introduction" class="nav-link">Tietoa meistä</a></li> <!-- Muutettu linkki -->
+      <li class="nav-item"><a href="#introduction" class="nav-link">Tietoa meistä</a></li>
       <li id="user-greeting" class="nav-item user-greeting"></li>
-      <li class="nav-item auth-buttons">
-        <a href="./sivut/Login.html" id="login-btn" class="auth-link">Kirjaudu sisään</a>
-        <a href="./sivut/Register.html" id="register-btn" class="auth-link">Rekisteröidy</a>
-        <a href="./sivut/Alerts.html" id="alerts-btn" class="auth-link">Hälytykset</a>
-        <button id="logout-btn" class="logout-button">Kirjaudu ulos</button>
-      </li>
+      <!-- Kirjautumattoman näkymä -->
+      <li class="nav-item" id="login-item"><a href="./sivut/Login.html" class="nav-link">Kirjaudu sisään</a></li>
+      <li class="nav-item" id="register-item"><a href="./sivut/Register.html" class="nav-link">Rekisteröidy</a></li>
+      <!-- Kirjautuneen näkymä (piilotettu oletuksena) -->
+      <li class="nav-item" id="profile-item" style="display:none;"><a href="./sivut/Profile.html" class="nav-link">Profiili</a></li>
+      <li class="nav-item" id="alerts-item" style="display:none;"><a href="./sivut/Alerts.html" class="nav-link">Hälytykset</a></li>
+      <li class="nav-item" id="logout-item" style="display:none;"><button id="logout-btn" class="nav-button">Kirjaudu ulos</button></li>
     </ul>
   </nav>
 
@@ -42,17 +43,17 @@
     <section id="features" class="features-section">
       <h2 class="section-title">Ominaisuudet</h2>
       <ul class="features-list">
-        <li class="feature-item">✅ Reaaliaikainen osakkeiden hintaseuranta</li>
-        <li class="feature-item">✅ Hälytysten asettaminen halutuille hinnoille</li>
-        <li class="feature-item">✅ Yksityiskohtaiset historialliset tiedot</li>
-        <li class="feature-item">✅ Käyttäjäystävällinen rajapinta</li>
+        <li class="feature-item"> Reaaliaikainen osakkeiden hintaseuranta</li>
+        <li class="feature-item"> Hälytysten asettaminen halutuille hinnoille</li>
+        <li class="feature-item"> Yksityiskohtaiset historialliset tiedot</li>
+        <li class="feature-item"> Käyttäjäystävällinen rajapinta</li>
       </ul>
     </section>
 
     <section id="introduction" class="intro-section">
       <h2 class="section-title">Tradetrack – innovatiivinen osakeseuranta-alusta sijoittajille</h2>
       <div class="intro-content">
-        <p class="intro-text">Olemme tietojenkäsittelyn opiskelijoita, ja tämänhetkinen projektimme on osa Company-Oriented Product Development Project 1 -opintokokonaisuutta. Kehittelemme Tradetrackia, uudenlaista alustaa, joka tarjoaa käyttäjilleen intuitiiviset ja monipuoliset työkalut osakemarkkinoiden seuraamiseen. Tradetrack on suunniteltu erityisesti suomalaisille sijoittajille, ja sen tavoitteena on tehdä markkinatiedon hallitsemisesta helppoa ja tehokasta.</p>
+        <p class="intro-text">Olemme tietojenkäsittelyn opiskelijoita, ja tämänhetkinen projektimme on osa Company-Oriented Product Development Project 1 -opintokokonaisuutta. Kehittelemme Tradetrackia, uudenlaista alustaa, joka tarjoaa käyttäjilleen intuitiiviset ja monipuoliset työkalut osakemarkkinoiden seuraamiseen. Tradetrack on suunniteltu erityisesti  sijoittajille, ja sen tavoitteena on tehdä markkinatiedon hallitsemisesta helppoa ja tehokasta.</p>
         <div class="action-buttons">
           <a href="./sivut/Register.html" class="primary-button">Aloita nyt</a>
         </div>
@@ -71,11 +72,42 @@
   </footer>
 
   <!-- JavaScript -->
-  <script src="/script/shared.js"></script>
-  <script src="/script/IndexScript.js"></script>
+  <script type="module" src="/script/Shared.js"></script>
+  <script type="module" src="/script/IndexScript.js"></script>
   <script>
     // Päivitä copyright-vuosi
     document.getElementById('current-year').textContent = new Date().getFullYear();
+    
+    // Tarkista onko käyttäjä kirjautunut (tämä on esimerkki, toteutus riippuu järjestelmästäsi)
+    function checkLoginStatus() {
+      // Tässä esimerkissä käytetään localStoragea, mutta oikeassa sovelluksessa
+      // tarkistat todennäköisesti sessionin tai tokenin
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      
+      if (isLoggedIn) {
+        document.getElementById('guest-view').style.display = 'none';
+        document.getElementById('user-view').style.display = 'block';
+        // Voit myös näyttää käyttäjän nimen
+        const username = localStorage.getItem('username') || 'Käyttäjä';
+        document.getElementById('user-greeting').textContent = `Hei, ${username}`;
+      } else {
+        document.getElementById('guest-view').style.display = 'block';
+        document.getElementById('user-view').style.display = 'none';
+        document.getElementById('user-greeting').textContent = '';
+      }
+    }
+    
+    // Kirjaudu ulos -toiminto
+    document.getElementById('logout-btn').addEventListener('click', function() {
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('username');
+      checkLoginStatus();
+      // Uudelleenohjaa etusivulle
+      window.location.href = 'index.html';
+    });
+    
+    // Tarkista kirjautumistila kun sivu latautuu
+    window.addEventListener('load', checkLoginStatus);
   </script>
 </body>
 </html>

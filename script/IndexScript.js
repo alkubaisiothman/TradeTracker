@@ -1,20 +1,27 @@
-// Yhteiset asetukset
-const BACKEND_URL = 'http://localhost:5000';
+import { initializeAuth, BACKEND_URL } from './Shared.js';
 
 // Valmiit osakkeet
 const popularStocks = [
   { symbol: 'AAPL', name: 'Apple Inc.' },
   { symbol: 'GOOGL', name: 'Alphabet Inc.' },
-  // ... muut osakkeet ...
+  { symbol: 'MSFT', name: 'Microsoft Corporation' },
+  { symbol: 'AMZN', name: 'Amazon.com Inc.' },
+  { symbol: 'TSLA', name: 'Tesla Inc.' }
 ];
 
 // Alusta sovellus kotisivulla
 document.addEventListener('DOMContentLoaded', function() {
+  // Alusta autentikointi
+  initializeAuth();
+  
+  // Näytä suosituimmat osakkeet
   displayPopularStocks();
-  initAuthUI();
+  
+  // Päivitä copyright-vuosi
+  updateCopyrightYear();
 });
 
-// Näytä suositukset osakkeet
+// Näytä suosituimmat osakkeet
 function displayPopularStocks() {
   const stockListDiv = document.getElementById('stock-list');
   if (!stockListDiv) return;
@@ -28,14 +35,13 @@ function displayPopularStocks() {
   // Lisää klikkaukset
   document.querySelectorAll('.stock-item').forEach(item => {
     item.addEventListener('click', () => {
-      window.location.href = `alerts.html?symbol=${item.getAttribute('data-symbol')}`;
+      const symbol = item.getAttribute('data-symbol');
+      window.location.href = `./sivut/Alerts.html?symbol=${symbol}`;
     });
   });
 }
 
-// Alustaa kirjautumis-UI:n
-function initAuthUI() {
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  document.getElementById('login-btn').style.display = isLoggedIn ? 'none' : 'block';
-  document.getElementById('logout-btn').style.display = isLoggedIn ? 'block' : 'none';
+// Päivitä copyright-vuosi
+function updateCopyrightYear() {
+  document.getElementById('current-year').textContent = new Date().getFullYear();
 }

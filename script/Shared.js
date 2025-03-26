@@ -2,10 +2,11 @@
 export const BACKEND_URL = 'http://localhost:5000';
 
 // Kirjautumisen hallinta
-export function setAuthToken(token, username, email) {
+export function setAuthToken(token, username, email, userId) {
   localStorage.setItem('authToken', token);
   localStorage.setItem('username', username);
   localStorage.setItem('email', email);
+  localStorage.setItem('userId', userId);
   localStorage.setItem('isLoggedIn', 'true');
   updateAuthUI();
 }
@@ -22,26 +23,49 @@ export function checkAuth(redirect = false) {
 
 function updateAuthUI() {
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  const loginBtn = document.getElementById('login-btn');
-  const registerBtn = document.getElementById('register-btn');
-  const logoutBtn = document.getElementById('logout-btn');
+  const loginItem = document.getElementById('login-item');
+  const registerItem = document.getElementById('register-item');
+  const logoutItem = document.getElementById('logout-item');
+  const profileItem = document.getElementById('profile-item');
+  const alertsItem = document.getElementById('alerts-item');
   const userGreeting = document.getElementById('user-greeting');
 
-  if (loginBtn) loginBtn.style.display = isLoggedIn ? 'none' : 'block';
-  if (registerBtn) registerBtn.style.display = isLoggedIn ? 'none' : 'block';
-  if (logoutBtn) logoutBtn.style.display = isLoggedIn ? 'block' : 'none';
+  if (loginItem) loginItem.style.display = isLoggedIn ? 'none' : 'block';
+  if (registerItem) registerItem.style.display = isLoggedIn ? 'none' : 'block';
+  if (logoutItem) logoutItem.style.display = isLoggedIn ? 'block' : 'none';
+  if (profileItem) profileItem.style.display = isLoggedIn ? 'block' : 'none';
+  if (alertsItem) alertsItem.style.display = isLoggedIn ? 'block' : 'none';
   
-  if (userGreeting && isLoggedIn) {
-    const username = localStorage.getItem('username');
-    userGreeting.textContent = `Hei, ${username}`;
-    userGreeting.style.display = 'block';
+  if (userGreeting) {
+    if (isLoggedIn) {
+      const username = localStorage.getItem('username') || 'Käyttäjä';
+      userGreeting.textContent = `Hei, ${username}`;
+      userGreeting.style.display = 'block';
+    } else {
+      userGreeting.style.display = 'none';
+    }
   }
 }
 
 // Kirjaudu ulos
 export function logout() {
-  localStorage.clear();
-  window.location.href = '/sivut/Login.html';
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('username');
+  localStorage.removeItem('email');
+  localStorage.removeItem('userId');
+  localStorage.removeItem('isLoggedIn');
+  window.location.href = '/index.html';
+}
+
+// Alusta kirjautumistila
+export function initializeAuth() {
+  updateAuthUI();
+  
+  // Lisää uloskirjautumistapahtuma
+  document.getElementById('logout-btn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    logout();
+  });
 }
 
 // Osakedatan haku
@@ -66,6 +90,56 @@ export async function fetchStockData(symbol) {
     return await response.json();
   } catch (error) {
     console.error('Osakedatan haku epäonnistui:', error);
+    throw error;
+  }
+}
+
+// Käyttäjäprofiilin haku
+export async function fetchUserProfile() {
+  try {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('Kirjautuminen vaaditaan');
+    }
+
+    const response = await fetch(`${BACKEND_URL}/api/profile`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Profiilin haku epäonnistui:', error);
+    throw error;
+  }
+}
+
+// Käyttäjän hälytysten haku
+export async function fetchUserAlerts() {
+  try {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('Kirjautuminen vaaditaan');
+    }
+
+    const response = await fetch(`${BACKEND_URL}/api/alerts`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Hälytysten haku epäonnistui:', error);
     throw error;
   }
 }
@@ -147,165 +221,5 @@ export async function fetchHistoricalData(symbol, period) {
   }
 }
 
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
-
-// Rekisteröintireitti
-app.post('/api/register', async (req, res) => {
-  try {
-    const { username, email, password } = req.body;
-    
-    // Tarkista pakolliset kentät
-    if (!username || !email || !password) {
-      return res.status(400).json({ 
-        success: false,
-        error: 'Kaikki kentät ovat pakollisia' 
-      });
-    }
-    
-    // Tarkista käyttäjätunnuksen ja sähköpostin yksilöllisyys
-    const existingUser = await User.findOne({ 
-      $or: [{ username }, { email }] 
-    });
-    
-    if (existingUser) {
-      return res.status(400).json({ 
-        success: false,
-        error: 'Käyttäjätunnus tai sähköposti on jo käytössä' 
-      });
-    }
-    
-    // Hashaa salasana
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-    
-    // Luo uusi käyttäjä
-    const newUser = new User({
-      username,
-      email,
-      password: hashedPassword
-    });
-    
-    await newUser.save();
-    
-    res.json({ 
-      success: true,
-      message: 'Käyttäjä rekisteröity onnistuneesti' 
-    });
-    
-  } catch (error) {
-    console.error('Rekisteröintivirhe:', error);
-    res.status(500).json({ 
-      success: false,
-      error: 'Rekisteröinti epäonnistui',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-});
-
-const jwt = require('jsonwebtoken');
-const jwtSecret = process.env.JWT_SECRET || 'salainenavain'; // Käytä .env-tiedostossa olevaa avainta tuotannossa
-
-// Kirjautumisreitti
-app.post('/api/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    
-    // Tarkista pakolliset kentät
-    if (!email || !password) {
-      return res.status(400).json({ 
-        success: false,
-        error: 'Sähköposti ja salasana ovat pakollisia' 
-      });
-    }
-    
-    // Etsi käyttäjä
-    const user = await User.findOne({ email });
-    
-    if (!user) {
-      return res.status(401).json({ 
-        success: false,
-        error: 'Väärä sähköposti tai salasana' 
-      });
-    }
-    
-    // Vertaa salasanoja
-    const isMatch = await bcrypt.compare(password, user.password);
-    
-    if (!isMatch) {
-      return res.status(401).json({ 
-        success: false,
-        error: 'Väärä sähköposti tai salasana' 
-      });
-    }
-    
-    // Luo JWT-token
-    const token = jwt.sign(
-      { userId: user._id, email: user.email },
-      jwtSecret,
-      { expiresIn: '1h' }
-    );
-    
-    // Onnistunut vastaus
-    res.json({ 
-      success: true,
-      message: 'Kirjautuminen onnistui',
-      token,
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email
-      }
-    });
-    
-  } catch (error) {
-    console.error('Kirjautumisvirhe:', error);
-    res.status(500).json({ 
-      success: false,
-      error: 'Kirjautuminen epäonnistui',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-});
-// Kirjautumisen hallinta
-export function checkAuth(redirect = false) {
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  
-  if (!isLoggedIn && redirect) {
-    window.location.href = '/sivut/Login.html';
-    return false;
-  }
-  
-  updateAuthUI();
-  return isLoggedIn;
-}
-
-export function logout() {
-  localStorage.removeItem('authToken');
-  localStorage.removeItem('username');
-  localStorage.removeItem('email');
-  localStorage.removeItem('isLoggedIn');
-  window.location.href = '/sivut/Login.html';
-}
-
-function updateAuthUI() {
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  const loginBtn = document.getElementById('login-btn');
-  const registerBtn = document.getElementById('register-btn');
-  const logoutBtn = document.getElementById('logout-btn');
-  const userGreeting = document.getElementById('user-greeting');
-
-  if (loginBtn) loginBtn.style.display = isLoggedIn ? 'none' : 'block';
-  if (registerBtn) registerBtn.style.display = isLoggedIn ? 'none' : 'block';
-  if (logoutBtn) logoutBtn.style.display = isLoggedIn ? 'block' : 'none';
-  
-  if (userGreeting && isLoggedIn) {
-    const username = localStorage.getItem('username');
-    userGreeting.textContent = `Hei, ${username}`;
-    userGreeting.style.display = 'block';
-  }
-}
-
 // Alusta kirjautumistila sivun latauksen yhteydessä
-document.addEventListener('DOMContentLoaded', () => {
-  updateAuthUI();
-});
+document.addEventListener('DOMContentLoaded', initializeAuth);

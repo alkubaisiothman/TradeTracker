@@ -305,3 +305,187 @@
       margin-top: 0.5rem;
     }
   }
+  /* Profiilisivun spesifiset tyylit */
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.profile-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 992px) {
+  .profile-content {
+    grid-template-columns: 1fr 2fr;
+  }
+}
+
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .profile-header {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.profile-avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.profile-avatar img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--accent-color);
+}
+
+.profile-details {
+  flex: 1;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .profile-details {
+    text-align: left;
+  }
+}
+
+.profile-details h2 {
+  margin: 0;
+  color: var(--accent-color);
+  font-size: 1.8rem;
+}
+
+.profile-details p {
+  margin: 0.5rem 0;
+  color: var(--text-primary);
+}
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.stat-card {
+  background-color: var(--secondary-bg);
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: var(--box-shadow);
+}
+
+.stat-card h3 {
+  margin-top: 0;
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.stat-card p {
+  font-size: 2rem;
+  margin: 0.5rem 0 0;
+  color: var(--accent-color);
+  font-weight: bold;
+}
+
+.settings-form {
+  background-color: var(--secondary-bg);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 576px) {
+  .input-group {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+  
+  .input-group input {
+    flex: 1;
+  }
+}
+
+.primary-button.small,
+.secondary-button.small {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.danger-zone {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.danger-zone h4 {
+  color: #e74c3c;
+  margin-top: 0;
+}
+
+.danger-button {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: var(--transition);
+}
+
+.danger-button:hover {
+  background-color: #c0392b;
+}
+
+/* Lisätyylejä lomakkeille */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: var(--text-secondary);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(23, 195, 178, 0.3);
+}

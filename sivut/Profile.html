@@ -3,36 +3,97 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TradeTrack - Koti</title>
+  <title>TradeTrack - Profiili</title>
   <link rel="stylesheet" href="/styles/Profile.Style.css">
+  <link rel="icon" href="/kuvat/tradetrack.jpg" type="image/jpg">
 </head>
 <body>
-  <header>
-    <nav>
-      <ul>
-        <li><a href="/index.html">Koti</a></li>
-        <li class="nav-item"><a href="/index.html#introduction" class="nav-link">Tietoa meistä</a></li>        <li><a href="/sivut/Alerts.html">Hälytykset</a></li>
-        <li><a href="/sivut/Register.html">Rekisteröidy</a></li>
-        <li><a href="/sivut/Login.html">Kirjaudu sisään</a></li>
-        <li>
-          <form action="/haku" method="get" style="display: inline;">
-            <input type="text" name="q" placeholder="Hae...">
-            <button type="submit" aria-label="Search">
-              <img src="/kuvat/search-icon.png" alt="Search Icon" style="width: 20px; height: 20px;">
-            </button>
-          </form>
-        </li>
-      </ul>
-    </nav>
-    <h1>TradeTrack</h1>
-    <img src="/kuvat/tradetrack.jpg" alt="TradeTrack Logo" width="200">
-    <p>Tervetuloa TradeTrackiin - parhaaseen työkaluun osakkeiden seurantaan ja hälytysten asettamiseen.</p>
-  </header>
-  <main>
+  <nav class="main-navigation">
+    <ul class="nav-list">
+      <li class="nav-item"><a href="/index.html" class="nav-link">Koti</a></li>
+      <li class="nav-item"><a href="/index.html#introduction" class="nav-link">Tietoa meistä</a></li>
+      <li class="nav-item"><a href="/sivut/Alerts.html" class="nav-link">Hälytykset</a></li>
+      <li class="nav-item auth-buttons">
+        <a href="/sivut/Profile.html" id="profile-btn" class="auth-link active">Profiili</a>
+        <button id="logout-btn" class="logout-button">Kirjaudu ulos</button>
+      </li>
+    </ul>
+  </nav>
+
+  <main class="content-main">
+    <div class="profile-container">
+      <h1 class="section-title">Käyttäjäprofiili</h1>
+      
+      <div class="profile-content">
+        <div class="profile-info">
+          <div class="profile-header">
+            <div class="profile-avatar">
+              <img src="/kuvat/default-avatar.png" alt="Profiilikuva" id="profile-avatar">
+              <button id="change-avatar" class="secondary-button small">Vaihda kuva</button>
+            </div>
+            <div class="profile-details">
+              <h2 id="profile-username">Käyttäjätunnus</h2>
+              <p id="profile-email">sähköposti@example.com</p>
+              <p id="member-since">Jäsen alkaen: <span id="join-date">01.01.2023</span></p>
+            </div>
+          </div>
+          
+          <div class="profile-stats">
+            <div class="stat-card">
+              <h3>Asetetut hälytykset</h3>
+              <p id="alerts-count">0</p>
+            </div>
+            <div class="stat-card">
+              <h3>Seuratut osakkeet</h3>
+              <p id="stocks-count">0</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="profile-actions">
+          <h3>Asetukset</h3>
+          <div class="settings-form">
+            <div class="form-group">
+              <label for="change-username">Muuta käyttäjänimeä</label>
+              <div class="input-group">
+                <input type="text" id="change-username" placeholder="Uusi käyttäjänimi">
+                <button id="save-username" class="primary-button small">Tallenna</button>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="change-password">Vaihda salasana</label>
+              <div class="input-group">
+                <input type="password" id="current-password" placeholder="Nykyinen salasana">
+                <input type="password" id="new-password" placeholder="Uusi salasana">
+                <input type="password" id="confirm-new-password" placeholder="Vahvista uusi salasana">
+                <button id="save-password" class="primary-button small">Vaihda salasana</button>
+              </div>
+            </div>
+            
+            <div class="form-group danger-zone">
+              <h4>Vaaravyöhyke</h4>
+              <button id="delete-account" class="danger-button">Poista tili</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
-  <footer>
-    <p>© 2025 TradeTrack. Kaikki oikeudet pidätetään. Group 14 </p>
+  <footer class="main-footer">
+    <div class="footer-container">
+      <p class="copyright-text">© <span id="current-year">2025</span> TradeTrack. Group 14</p>
+      <div class="footer-links">
+        <a href="/sivut/privacy.html" class="footer-link">Tietosuojaseloste</a>
+        <a href="/sivut/terms.html" class="footer-link">Käyttöehdot</a>
+      </div>
+    </div>
   </footer>
+
+  <script type="module" src="/script/ProfileScript.js"></script>
+  <script>
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
