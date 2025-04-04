@@ -5,15 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TradeTrack - Rekisteröidy</title>
   <link rel="stylesheet" href="/styles/Register.Style.css">
-  <link rel="icon" href="/kuvat/tradetrack.jpg" type="image/jpg">
+  <link rel="icon" href="./kuvat/tradetrack.jpg" type="image/jpg">
+  <!-- Chart.js vain jos sitä todella tarvitset -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
 </head>
 <body>
   <nav class="main-navigation">
     <ul class="nav-list">
-      <li class="nav-item"><a href="/index.html" class="nav-link">Koti</a></li>
-      <li class="nav-item"><a href="/index.html#introduction" class="nav-link">Tietoa meistä</a></li>      <li class="nav-item auth-buttons">
-        <a href="/sivut/Login.html" id="login-btn" class="auth-link">Kirjaudu sisään</a>
-        <a href="/sivut/Register.html" id="register-btn" class="auth-link active">Rekisteröidy</a>
+      <li class="nav-item"><a href="./index.html" class="nav-link">Koti</a></li>
+      <li class="nav-item"><a href="/index.html#introduction" class="nav-link">Tietoa meistä</a></li>
+        <a href="./Login.html" id="login-btn" class="auth-link">Kirjaudu sisään</a>
+        <a href="./Register.html" id="register-btn" class="auth-link active">Rekisteröidy</a>
       </li>
     </ul>
   </nav>
@@ -23,11 +25,12 @@
       <div class="register-form">
         <h1 class="section-title">Luo uusi käyttäjätili</h1>
         
-        <form id="registration-form" class="auth-form">
+        <form id="registration-form" class="auth-form" novalidate>
           <div class="form-group">
             <label for="username">Käyttäjätunnus</label>
             <input type="text" id="username" name="username" required minlength="3" maxlength="20" 
-                   placeholder="Vähintään 3 merkkiä">
+                   placeholder="Vähintään 3 merkkiä" pattern="[a-zA-Z0-9]+"
+                   title="Vain kirjaimet ja numerot sallittu">
             <small class="error-message" id="username-error"></small>
           </div>
           
@@ -59,7 +62,7 @@
         </form>
         
         <div class="auth-footer">
-          <p>Onko sinulla jo tili? <a href="/sivut/Login.html" class="auth-link">Kirjaudu sisään</a></p>
+          <p>Onko sinulla jo tili? <a href="./sivut/Login.html" class="auth-link">Kirjaudu sisään</a></p>
         </div>
       </div>
     </div>
@@ -69,15 +72,27 @@
     <div class="footer-container">
       <p class="copyright-text">© <span id="current-year">2025</span> TradeTrack. Group 14</p>
       <div class="footer-links">
-        <a href="/sivut/privacy.html" class="footer-link">Tietosuojaseloste</a>
-        <a href="/sivut/terms.html" class="footer-link">Käyttöehdot</a>
+        <a href="./sivut/privacy.html" class="footer-link">Tietosuojaseloste</a>
+        <a href="./sivut/terms.html" class="footer-link">Käyttöehdot</a>
       </div>
     </div>
   </footer>
 
-  <script type="module" src="/script/RegisterScript.js"></script>
+  <!-- Muuta polut suhteellisiksi (./ alkuun) ja varmista tiedostojen sijainti -->
+  <script type="module" src="./script/RegisterScript.js"></script>
+  <script type="module" src="./script/auth/auth.js"></script>
+  <script type="module" src="./script/api/api.js"></script>
+  <!-- Poista chart.js kommenteista jos sitä ei tarvita -->
+  <!-- <script type="module" src="./script/chart/chart.js"></script> -->
+  
   <script>
+    // Aseta vuosi
     document.getElementById('current-year').textContent = new Date().getFullYear();
+    
+    // Estä Chrome extension virhe
+    if (window.chrome && chrome.runtime && chrome.runtime.lastError) {
+      console.warn('Chrome extension error suppressed');
+    }
   </script>
 </body>
 </html>

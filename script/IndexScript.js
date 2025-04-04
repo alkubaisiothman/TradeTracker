@@ -1,18 +1,16 @@
-import { initializeAuth, BACKEND_URL } from './Shared.js';
+import { auth } from './auth/auth.js';
+import { stockAPI } from './api/api.js';
 
-// Valmiit osakkeet
-const popularStocks = [
+// Suosituimmat osakkeet
+const POPULAR_STOCKS = [
   { symbol: 'AAPL', name: 'Apple Inc.' },
   { symbol: 'GOOGL', name: 'Alphabet Inc.' },
-  { symbol: 'MSFT', name: 'Microsoft Corporation' },
-  { symbol: 'AMZN', name: 'Amazon.com Inc.' },
-  { symbol: 'TSLA', name: 'Tesla Inc.' }
+  { symbol: 'MSFT', name: 'Microsoft' }
 ];
 
-// Alusta sovellus kotisivulla
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
   // Alusta autentikointi
-  initializeAuth();
+  auth.init();
   
   // Näytä suosituimmat osakkeet
   displayPopularStocks();
@@ -21,27 +19,34 @@ document.addEventListener('DOMContentLoaded', function() {
   updateCopyrightYear();
 });
 
-// Näytä suosituimmat osakkeet
-function displayPopularStocks() {
-  const stockListDiv = document.getElementById('stock-list');
-  if (!stockListDiv) return;
+async function displayPopularStocks() {
+  const container = document.getElementById('stock-list');
+  if (!container) return;
 
-  stockListDiv.innerHTML = popularStocks.map(stock => `
-    <div class="stock-item" data-symbol="${stock.symbol}">
-      <strong>${stock.symbol}</strong> - ${stock.name}
-    </div>
-  `).join('');
+  try {
+    container.innerHTML = POPULAR_STOCKS.map(stock => `
+      <div class="stock-item" data-symbol="${stock.symbol}">
+        <strong>${stock.symbol}</strong> - ${stock.name}
+      </div>
+    `).join('');
 
-  // Lisää klikkaukset
-  document.querySelectorAll('.stock-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const symbol = item.getAttribute('data-symbol');
-      window.location.href = `./sivut/Alerts.html?symbol=${symbol}`;
+    // Lisää tapahtumankäsittelijät
+    document.querySelectorAll('.stock-item').forEach(item => {
+      item.addEventListener('click', async () => {
+        const symbol = item.dataset.symbol;
+        try {
+          const quote = await stockAPI.getQuote(symbol);
+          alert(`Osake: ${symbol}, Hinta: ${quote['Global Quote']['05. price']} USD`);
+        } catch (error) {
+          console.error('Osaketietojen haku epäonnistui:', error);
+        }
+      });
     });
-  });
+  } catch (error) {
+    container.innerHTML = `<p class="error">Osakelistauksen haku epäonnistui</p>`;
+  }
 }
 
-// Päivitä copyright-vuosi
 function updateCopyrightYear() {
   document.getElementById('current-year').textContent = new Date().getFullYear();
 }

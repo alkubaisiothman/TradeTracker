@@ -8,6 +8,7 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+// Luo Express-sovellus
 const app = express();
 const saltRounds = 10;
 const jwtSecret = process.env.JWT_SECRET || 'salainenavain';
@@ -50,12 +51,26 @@ const AlertSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const UserSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  avatarUrl: { type: String },
-  trackedStocks: [{ type: String }],
-  lastLogin: { type: Date }
+  username: { 
+    type: String, 
+    required: true, 
+    unique: true,
+    minlength: 3,
+    maxlength: 20,
+    match: [/^[a-zA-Z0-9]+$/, 'Käyttäjänimi saa sisältää vain kirjaimia ja numeroita']
+  },
+  email: { 
+    type: String, 
+    required: true, 
+    unique: true,
+    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Syötä validi sähköpostiosoite']
+  },
+  password: { 
+    type: String, 
+    required: true,
+    minlength: 6
+  },
+  createdAt: { type: Date, default: Date.now }
 }, { timestamps: true });
 
 const Alert = mongoose.model('Alert', AlertSchema);

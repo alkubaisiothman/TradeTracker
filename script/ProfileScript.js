@@ -1,4 +1,6 @@
-import { BACKEND_URL, logout } from './Shared.js';
+import { stockAPI } from './api/api.js';
+import { chart } from './chart/chart.js';
+import { auth } from './auth/auth.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   // Alustus
