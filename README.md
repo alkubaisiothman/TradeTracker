@@ -84,7 +84,7 @@ Tarkastele hintakehitystä:
 
 Kehitysympäristö
     Node.js: v20.x
-    MongoDB: v6.x
+    MongoDB: v6.x (Lataaminen https://www.mongodb.com/try/download/community)
     Selain: Chrome, Firefox, Edge (uusin versio)
 
 Lisenssi
