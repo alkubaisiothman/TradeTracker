@@ -26,16 +26,29 @@
 
   <nav class="main-navigation">
     <ul class="nav-list">
-      <li class="nav-item"><a href="index.html" class="nav-link active">Koti</a></li>
-      <li class="nav-item"><a href="#introduction" class="nav-link">Tietoa meistä</a></li>
-      <li id="user-greeting" class="nav-item user-greeting"></li>
-      <!-- Kirjautumattoman näkymä -->
-      <li class="nav-item" id="login-item"><a href="./sivut/Login.html" class="nav-link">Kirjaudu sisään</a></li>
-      <li class="nav-item" id="register-item"><a href="./sivut/Register.html" class="nav-link">Rekisteröidy</a></li>
-      <!-- Kirjautuneen näkymä (piilotettu oletuksena) -->
-      <li class="nav-item" id="profile-item" style="display:none;"><a href="./sivut/Profile.html" class="nav-link">Profiili</a></li>
-      <li class="nav-item" id="alerts-item" style="display:none;"><a href="./sivut/Alerts.html" class="nav-link">Hälytykset</a></li>
-      <li class="nav-item" id="logout-item" style="display:none;"><button id="logout-btn" class="nav-button">Kirjaudu ulos</button></li>
+      <!-- AINA NÄKYVÄT -->
+      <li class="nav-item"><a href="/index.html" class="nav-link">Koti</a></li>
+      <li class="nav-item"><a href="/index.html#introduction" class="nav-link">Tietoa meistä</a></li>
+  
+      <!-- KIRJAUTUNEEN NÄKYMÄ (piilotettu aluksi) -->
+      <li id="user-greeting" class="nav-item user-greeting" style="display:none;"></li>
+      <li id="profile-item" class="nav-item" style="display:none;">
+        <a href="./sivut/Profile.html" class="nav-link">Profiili</a>
+      </li>
+      <li id="alerts-item" class="nav-item" style="display:none;">
+        <a href="./sivut/Alerts.html" class="nav-link">Hälytykset</a>
+      </li>
+      <li id="logout-item" class="nav-item" style="display:none;">
+        <button id="logout-btn" class="nav-button">Kirjaudu ulos</button>
+      </li>
+  
+      <!-- KIRJAUTUMATTOMAN NÄKYMÄ -->
+      <li id="login-item" class="nav-item">
+        <a href="./sivut/Login.html" class="nav-link">Kirjaudu sisään</a>
+      </li>
+      <li id="register-item" class="nav-item">
+        <a href="./sivut/Register.html" class="nav-link">Rekisteröidy</a>
+      </li>
     </ul>
   </nav>
 

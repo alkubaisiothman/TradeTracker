@@ -91,31 +91,10 @@ export const stockAPI = {
     api.get(`/api/historical-data?symbol=${symbol}&period=${period}`)
 };
 
-// Käyttäjän API-toiminnot (paranneltu versio)
+// Käyttäjän API-toiminnot (korjattu versio)
 export const userAPI = {
   register: async (userData) => {
     try {
-      // Tarkista salasanat ennen API-kutsua
-      if (userData.password !== userData.confirmPassword) {
-        throw new Error('Salasanat eivät täsmää');
-      }
-
-      const response = await api.post('/api/register', {
-        username: userData.username,
-        email: userData.email,
-        password: userData.password
-      }, false);
-
-      return response;
-    } catch (error) {
-      console.error('Rekisteröintivirhe:', error);
-      throw error;
-    }
-  },
-
-  register: async (userData) => {
-    try {
-      // Lisää vahvistus salasanalle
       if (userData.password !== userData.confirmPassword) {
         throw new Error('Salasanat eivät täsmää');
       }
@@ -125,8 +104,7 @@ export const userAPI = {
         email: userData.email,
         password: userData.password
       }, false);
-      
-      // Tallenna token jos rekisteröinti onnistui
+
       if (response.token) {
         localStorage.setItem('authToken', response.token);
       }
@@ -134,6 +112,19 @@ export const userAPI = {
       return response;
     } catch (error) {
       console.error('Rekisteröintivirhe:', error);
+      throw error;
+    }
+  },
+
+  login: async (credentials) => {
+    try {
+      const response = await api.post('/api/login', credentials, false);
+      if (response.token) {
+        localStorage.setItem('authToken', response.token);
+      }
+      return response;
+    } catch (error) {
+      console.error('Kirjautumisvirhe:', error);
       throw error;
     }
   },

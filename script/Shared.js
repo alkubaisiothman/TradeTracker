@@ -1,225 +1,116 @@
+// /script/Shared.js
+
 // Ympäristömuuttujat ja yhteiset funktiot
-export const BACKEND_URL = 'http://localhost:5000';
+export const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5000';
 
-// Kirjautumisen hallinta
-export function setAuthToken(token, username, email, userId) {
-  localStorage.setItem('authToken', token);
-  localStorage.setItem('username', username);
-  localStorage.setItem('email', email);
-  localStorage.setItem('userId', userId);
-  localStorage.setItem('isLoggedIn', 'true');
-  updateAuthUI();
-}
+// Autentikaatioutils
+export const authUtils = {
+  // Tallenna kirjautumistiedot
+  setAuthData: (token, userData) => {
+    localStorage.setItem('authToken', token);
+    localStorage.setItem('userData', JSON.stringify(userData));
+    localStorage.setItem('lastActivity', new Date().getTime());
+  },
 
-export function checkAuth(redirect = false) {
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  if (!isLoggedIn && redirect) {
-    window.location.href = '/sivut/Login.html';
-    return false;
-  }
-  updateAuthUI();
-  return isLoggedIn;
-}
-
-function updateAuthUI() {
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  const loginItem = document.getElementById('login-item');
-  const registerItem = document.getElementById('register-item');
-  const logoutItem = document.getElementById('logout-item');
-  const profileItem = document.getElementById('profile-item');
-  const alertsItem = document.getElementById('alerts-item');
-  const userGreeting = document.getElementById('user-greeting');
-
-  if (loginItem) loginItem.style.display = isLoggedIn ? 'none' : 'block';
-  if (registerItem) registerItem.style.display = isLoggedIn ? 'none' : 'block';
-  if (logoutItem) logoutItem.style.display = isLoggedIn ? 'block' : 'none';
-  if (profileItem) profileItem.style.display = isLoggedIn ? 'block' : 'none';
-  if (alertsItem) alertsItem.style.display = isLoggedIn ? 'block' : 'none';
-  
-  if (userGreeting) {
-    if (isLoggedIn) {
-      const username = localStorage.getItem('username') || 'Käyttäjä';
-      userGreeting.textContent = `Hei, ${username}`;
-      userGreeting.style.display = 'block';
-    } else {
-      userGreeting.style.display = 'none';
-    }
-  }
-}
-
-// Kirjaudu ulos
-export function logout() {
-  localStorage.removeItem('authToken');
-  localStorage.removeItem('username');
-  localStorage.removeItem('email');
-  localStorage.removeItem('userId');
-  localStorage.removeItem('isLoggedIn');
-  window.location.href = '/index.html';
-}
-
-// Alusta kirjautumistila
-export function initializeAuth() {
-  updateAuthUI();
-  
-  // Lisää uloskirjautumistapahtuma
-  document.getElementById('logout-btn')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    logout();
-  });
-}
-
-// Osakedatan haku
-export async function fetchStockData(symbol) {
-  console.log(`Haetaan osakedataa symbolille: ${symbol}`);
-  try {
+  // Tarkista autentikaatio
+  checkAuth: () => {
     const token = localStorage.getItem('authToken');
-    const headers = {};
+    const lastActivity = localStorage.getItem('lastActivity');
     
-    if (token) {
+    // Tarkista token ja viimeisin aktiivisuus (30 min sessio)
+    if (!token || (lastActivity && (Date.now() - lastActivity > 1800000))) {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
+      return false;
+    }
+    
+    // Päivitä viimeisin aktiivisuus
+    localStorage.setItem('lastActivity', new Date().getTime());
+    return true;
+  },
+
+  // Kirjaudu ulos
+  logout: () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userData');
+    window.location.href = '/index.html';
+  },
+
+  // Hae käyttäjätiedot
+  getUser: () => {
+    const userData = localStorage.getItem('userData');
+    return userData ? JSON.parse(userData) : null;
+  }
+};
+
+// API-apufunktiot
+export const apiHelpers = {
+  // Käsittele API-virheet
+  handleApiError: (error) => {
+    console.error('API-virhe:', error);
+    throw error.response?.data?.message || error.message || 'API-kutsu epäonnistui';
+  },
+
+  // Hae otsikot
+  getHeaders: (needsAuth = true) => {
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+    
+    if (needsAuth) {
+      const token = localStorage.getItem('authToken');
+      if (!token) throw new Error('Kirjautuminen vaaditaan');
       headers['Authorization'] = `Bearer ${token}`;
     }
     
-    const response = await fetch(`${BACKEND_URL}/api/stock-data?symbol=${symbol}`, {
-      headers
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Osakedatan haku epäonnistui:', error);
-    throw error;
+    return headers;
   }
-}
+};
 
-// Käyttäjäprofiilin haku
-export async function fetchUserProfile() {
-  try {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      throw new Error('Kirjautuminen vaaditaan');
-    }
+// Muotoiluutils
+export const formatUtils = {
+  // Muotoile päivämäärä
+  formatDate: (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('fi-FI', options);
+  },
 
-    const response = await fetch(`${BACKEND_URL}/api/profile`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Profiilin haku epäonnistui:', error);
-    throw error;
+  // Muotoile raha
+  formatCurrency: (amount, currency = 'EUR') => {
+    return new Intl.NumberFormat('fi-FI', {
+      style: 'currency',
+      currency
+    }).format(amount);
   }
-}
+};
 
-// Käyttäjän hälytysten haku
-export async function fetchUserAlerts() {
-  try {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      throw new Error('Kirjautuminen vaaditaan');
-    }
-
-    const response = await fetch(`${BACKEND_URL}/api/alerts`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Hälytysten haku epäonnistui:', error);
-    throw error;
+// Alusta sovellus
+export const initApp = () => {
+  // Tarkista autentikaatio sivun latauksen yhteydessä
+  if (!authUtils.checkAuth() && !window.location.pathname.includes('/login')) {
+    window.location.href = '/sivut/Login.html';
   }
-}
 
-// Kaavion hallinta
-let priceChart;
+  // Päivitä UI:n autentikaatiotila
+  updateAuthUI();
+};
 
-export function initChart() {
-  const ctx = document.getElementById('priceChart');
-  if (!ctx) {
-    console.error('Kaavion canvas-elementtiä ei löytynyt');
-    return null;
-  }
+// Päivitä autentikaatio-UI
+const updateAuthUI = () => {
+  const isAuthenticated = authUtils.checkAuth();
+  const user = authUtils.getUser();
   
-  priceChart = new Chart(ctx.getContext('2d'), {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        label: 'Hinta (USD)',
-        data: [],
-        borderColor: '#17C3B2',
-        borderWidth: 2,
-        fill: false,
-        tension: 0.1
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        tooltip: {
-          mode: 'index',
-          intersect: false
-        }
-      },
-      scales: {
-        x: {
-          title: { display: true, text: 'Aika' },
-          grid: { color: 'rgba(255,255,255,0.1)' }
-        },
-        y: {
-          title: { display: true, text: 'Hinta (USD)' },
-          grid: { color: 'rgba(255,255,255,0.1)' }
-        }
-      }
-    }
+  // Päivitä navigaatio
+  document.querySelectorAll('[data-auth]').forEach(el => {
+    el.style.display = el.dataset.auth === 'true' && isAuthenticated ? 'block' : 'none';
   });
-  return priceChart;
-}
-
-export function updateChart(labels, data) {
-  if (priceChart) {
-    priceChart.data.labels = labels;
-    priceChart.data.datasets[0].data = data;
-    priceChart.update();
-  } else {
-    console.error('Kaaviota ei ole alustettu');
+  
+  // Päivitä käyttäjän tervehdys
+  const greetingEl = document.getElementById('user-greeting');
+  if (greetingEl) {
+    greetingEl.textContent = isAuthenticated ? `Hei, ${user?.username || 'Käyttäjä'}` : '';
   }
-}
+};
 
-// Historiallisen datan haku
-export async function fetchHistoricalData(symbol, period) {
-  console.log(`Haetaan historiallista dataa: ${symbol}, ${period}`);
-  try {
-    const response = await fetch(`${BACKEND_URL}/api/historical-data?symbol=${symbol}&period=${period}`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Historiallisten tietojen haku epäonnistui:', error);
-    throw error;
-  }
-}
-
-// Alusta kirjautumistila sivun latauksen yhteydessä
-document.addEventListener('DOMContentLoaded', initializeAuth);
+// Alusta kun DOM on valmis
+document.addEventListener('DOMContentLoaded', initApp);

@@ -6,43 +6,57 @@
   <title>TradeTrack - Hälytykset</title>
   <link rel="stylesheet" href="/styles/Alerts.Style.css">
   <link rel="icon" href="/kuvat/tradetrack.jpg" type="image/jpg">
+  <!-- Chart.js + Zoom/pan -plugin -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
 </head>
 <body>
-  <!-- Päivitetty navigaatio -->
   <nav class="main-navigation">
     <ul class="nav-list">
+      <!-- AINA NÄKYVÄT -->
       <li class="nav-item"><a href="/index.html" class="nav-link">Koti</a></li>
-      <li class="nav-item"><a href="/index.html#introduction" class="nav-link">Tietoa meistä</a></li>      <li id="user-greeting" class="nav-item user-greeting"></li>
-      <li class="nav-item auth-buttons">
-        <a href="/sivut/Login.html" id="login-btn" class="auth-link">Kirjaudu sisään</a>
-        <a href="/sivut/Register.html" id="register-btn" class="auth-link">Rekisteröidy</a>
-        <a href="/sivut/Alerts.html" id="alerts-btn" class="auth-link active">Hälytykset</a>
-        <button id="logout-btn" class="logout-button">Kirjaudu ulos</button>
+      <li class="nav-item"><a href="/index.html#introduction" class="nav-link">Tietoa meistä</a></li>
+  
+      <!-- KIRJAUTUNEEN NÄKYMÄ (piilotettu aluksi) -->
+      <li id="user-greeting" class="nav-item user-greeting" style="display:none;"></li>
+      <li id="profile-item" class="nav-item" style="display:none;">
+        <a href="/sivut/Profile.html" class="nav-link">Profiili</a>
+      </li>
+      <li id="alerts-item" class="nav-item" style="display:none;">
+        <a href="/sivut/Alerts.html" class="nav-link">Hälytykset</a>
+      </li>
+      <li id="logout-item" class="nav-item" style="display:none;">
+        <button id="logout-btn" class="nav-button">Kirjaudu ulos</button>
+      </li>
+  
+      <!-- KIRJAUTUMATTOMAN NÄKYMÄ -->
+      <li id="login-item" class="nav-item">
+        <a href="/sivut/Login.html" class="nav-link">Kirjaudu sisään</a>
+      </li>
+      <li id="register-item" class="nav-item">
+        <a href="/sivut/Register.html" class="nav-link">Rekisteröidy</a>
       </li>
     </ul>
   </nav>
 
   <main class="content-main">
     <div class="alert-container">
-      <!-- Vasen osio: Suosituimmat osakkeet -->
       <div class="alert-left">
         <section id="popular-stocks" class="alert-section">
           <h2 class="section-title">Suositut osakkeet</h2>
           <div id="stock-list" class="stock-list">
-            <!-- Lisätty latausanimaatio -->
             <div class="loading-spinner" id="stocks-loading"></div>
           </div>
         </section>
       </div>
 
-      <!-- Oikea osio: Haku ja tiedot -->
       <div class="alert-right">
-        <!-- Osakehakukenttä -->
         <section id="stock-search" class="alert-section">
           <h2 class="section-title">Hae osakkeita</h2>
           <div class="search-container">
-            <input type="text" id="stock-symbol" placeholder="Syötä osakkeen symboli (esim. AAPL, SAMPO.HE)" 
+            <input type="text" id="stock-symbol" 
+                   placeholder="Syötä osakkeen symboli (esim. AAPL, SAMPO.HE)" 
                    class="search-input" autocomplete="off">
             <button id="search-button" class="search-button">
               <span id="search-text">Hae</span>
@@ -51,7 +65,6 @@
           </div>
         </section>
 
-        <!-- Valitun osakkeen tiedot -->
         <section id="selected-stock" class="alert-section">
           <h2 class="section-title">Osakkeen tiedot</h2>
           <div id="stock-data" class="stock-data">
@@ -59,7 +72,6 @@
           </div>
         </section>
 
-        <!-- Hintakaavio -->
         <section id="stock-chart" class="alert-section">
           <h2 class="section-title">Hintakehitys</h2>
           <div id="chart-controls" class="chart-controls">
@@ -67,19 +79,26 @@
             <button id="1-week" class="chart-button">1 viikko</button>
             <button id="1-month" class="chart-button active">1 kuukausi</button>
             <button id="1-year" class="chart-button">1 vuosi</button>
+            <button id="reset-zoom" class="chart-button secondary">Nollaa zoom</button>
           </div>
           <div class="chart-container">
-            <canvas id="priceChart" class="price-chart"></canvas>
+            <!-- Lisätty wrapper-div jotta responsiivisuus toimii paremmin -->
+            <div class="chart-wrapper">
+              <canvas id="priceChart" class="price-chart"></canvas>
+            </div>
             <div id="chart-loading" class="loading-spinner"></div>
-            <p id="chart-message" class="no-data-message">Kaavio näytetään kun osake on valittu</p>
+            <p id="chart-message" class="no-data-message">
+              Kaavio näytetään kun osake on valittu
+              <span class="hint">(Voit zoomata ja liikuttaa kaaviota)</span>
+            </p>
           </div>
         </section>
 
-        <!-- Hälytysten asetus -->
         <section id="alerts" class="alert-section">
           <h2 class="section-title">Aseta hälytykset</h2>
           <div class="alert-form">
-            <input type="number" id="alert-price" placeholder="Hinta (USD/EUR)" 
+            <input type="number" id="alert-price" 
+                   placeholder="Hinta (USD/EUR)" 
                    class="alert-input" step="0.01" min="0">
             <button id="set-alert-button" class="alert-button">
               <span id="alert-text">Aseta hälytys</span>
@@ -113,9 +132,20 @@
   <script type="module" src="/script/api/api.js"></script>
   <script type="module" src="/script/chart/chart.js"></script>
   <script type="module" src="/script/AlertsScript.js"></script>
+  
   <script>
     // Päivitä copyright-vuosi
     document.getElementById('current-year').textContent = new Date().getFullYear();
+    
+    // Varmista että canvas on oikean kokoinen
+    document.addEventListener('DOMContentLoaded', () => {
+      const canvas = document.getElementById('priceChart');
+      if (canvas) {
+        const container = canvas.closest('.chart-wrapper');
+        canvas.width = container.clientWidth;
+        canvas.height = 400;
+      }
+    });
   </script>
 </body>
 </html>

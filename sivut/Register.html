@@ -12,10 +12,28 @@
 <body>
   <nav class="main-navigation">
     <ul class="nav-list">
-      <li class="nav-item"><a href="./index.html" class="nav-link">Koti</a></li>
+      <!-- AINA NÄKYVÄT -->
+      <li class="nav-item"><a href="/index.html" class="nav-link">Koti</a></li>
       <li class="nav-item"><a href="/index.html#introduction" class="nav-link">Tietoa meistä</a></li>
-        <a href="./Login.html" id="login-btn" class="auth-link">Kirjaudu sisään</a>
-        <a href="./Register.html" id="register-btn" class="auth-link active">Rekisteröidy</a>
+  
+      <!-- KIRJAUTUNEEN NÄKYMÄ (piilotettu aluksi) -->
+      <li id="user-greeting" class="nav-item user-greeting" style="display:none;"></li>
+      <li id="profile-item" class="nav-item" style="display:none;">
+        <a href="/sivut/Profile.html" class="nav-link">Profiili</a>
+      </li>
+      <li id="alerts-item" class="nav-item" style="display:none;">
+        <a href="/sivut/Alerts.html" class="nav-link">Hälytykset</a>
+      </li>
+      <li id="logout-item" class="nav-item" style="display:none;">
+        <button id="logout-btn" class="nav-button">Kirjaudu ulos</button>
+      </li>
+  
+      <!-- KIRJAUTUMATTOMAN NÄKYMÄ -->
+      <li id="login-item" class="nav-item">
+        <a href="/sivut/Login.html" class="nav-link">Kirjaudu sisään</a>
+      </li>
+      <li id="register-item" class="nav-item">
+        <a href="/sivut/Register.html" class="nav-link">Rekisteröidy</a>
       </li>
     </ul>
   </nav>
@@ -79,9 +97,9 @@
   </footer>
 
   <!-- Muuta polut suhteellisiksi (./ alkuun) ja varmista tiedostojen sijainti -->
-  <script type="module" src="./script/RegisterScript.js"></script>
-  <script type="module" src="./script/auth/auth.js"></script>
-  <script type="module" src="./script/api/api.js"></script>
+  <script type="module" src="/script/RegisterScript.js"></script>
+  <script type="module" src="/script/auth/auth.js"></script>
+  <script type="module" src="/script/api/api.js"></script>
   <!-- Poista chart.js kommenteista jos sitä ei tarvita -->
   <!-- <script type="module" src="./script/chart/chart.js"></script> -->
   
