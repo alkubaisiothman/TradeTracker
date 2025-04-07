@@ -1,3 +1,27 @@
+# API-avaimet
 ALPHA_VANTAGE_API_KEY=
+
+# Tietokanta
+MONGODB_URI=mongodb:
+MONGO_URI=mongodb:
+
+# Sähköpostin lähetys
 EMAIL_USER=
 EMAIL_PASSWORD=
+EMAIL_FROM=
+EMAIL_SERVICE=
+
+# JWT Autentikointi
+JWT_SECRET=
+JWT_EXPIRES_IN=
+JWT_ISSUER=
+
+# Sovelluksen asetukset
+NODE_ENV=
+PORT=
+FRONTEND_URL=
+SESSION_SECRET=
+
+# Turvallisuus
+RATE_LIMIT_WINDOW=
+RATE_LIMIT_MAX=

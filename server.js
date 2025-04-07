@@ -176,9 +176,35 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// Autentikointimiddleware (SIJRATTU YLÖS ENNEN KÄYTTÖÄ)
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ 
+      success: false,
+      error: 'Kirjautuminen vaaditaan'
+    });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ 
+        success: false,
+        error: 'Virheellinen tai vanhentunut token'
+      });
+    }
+    req.user = user;
+    next();
+  });
+}
+
 // Apufunktio API-kutsuille
 async function fetchStockData(symbol, functionParam = 'GLOBAL_QUOTE') {
+  console.log(`Käytetään API-avainta: ${process.env.ALPHA_VANTAGE_API_KEY}`); // Lisätty
   const url = `https://www.alphavantage.co/query?function=${functionParam}&symbol=${symbol}&apikey=${process.env.ALPHA_VANTAGE_API_KEY}`;
+  console.log('URL:', url); // Lisätty debug-tuloste
   
   try {
     const response = await fetch(url);
@@ -203,30 +229,6 @@ async function fetchStockData(symbol, functionParam = 'GLOBAL_QUOTE') {
   }
 }
 
-// Autentikointimiddleware
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  
-  if (!token) {
-    return res.status(401).json({ 
-      success: false,
-      error: 'Kirjautuminen vaaditaan'
-    });
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ 
-        success: false,
-        error: 'Virheellinen tai vanhentunut token'
-      });
-    }
-    req.user = user;
-    next();
-  });
-}
-
 // API-reitit
 app.get('/api/health', (req, res) => {
   res.status(200).json({
@@ -241,6 +243,7 @@ app.get('/api/health', (req, res) => {
 app.get('/api/stock-data', apiLimiter, async (req, res) => {
   try {
     const { symbol } = req.query;
+    console.log('Haetaan osaketietoja symbolille:', symbol); // Debug
     
     if (!symbol) {
       return res.status(400).json({ 
@@ -250,23 +253,26 @@ app.get('/api/stock-data', apiLimiter, async (req, res) => {
     }
 
     const data = await fetchStockData(symbol);
+    console.log('API vastaus:', JSON.stringify(data, null, 2)); // Debug
     
-    if (!data['Global Quote']) {
+    if (!data || !data['Global Quote']) {
       return res.status(404).json({ 
         success: false,
-        error: 'Osaketietoja ei löytynyt'
+        error: 'Osaketietoja ei löytynyt',
+        receivedData: data // Lisätty debug-tieto
       });
     }
 
     res.json({
       success: true,
-      data
+      data: data['Global Quote']
     });
   } catch (error) {
     console.error('Osaketietojen haku epäonnistui:', error);
     res.status(500).json({ 
       success: false,
-      error: error.message || 'Osaketietojen haku epäonnistui'
+      error: error.message || 'Osaketietojen haku epäonnistui',
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });

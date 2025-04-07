@@ -1,4 +1,3 @@
-// /script/api/api.js
 export const API_BASE_URL = 'http://localhost:5000';
 
 const handleResponse = async (response) => {
@@ -84,14 +83,31 @@ export const api = {
   }
 };
 
-// Osakkeiden API-toiminnot
+// Osakkeiden API-toiminnot (paranneltu virheenkäsittely)
 export const stockAPI = {
-  getQuote: (symbol) => api.get(`/api/stock-data?symbol=${symbol}`),
-  getHistoricalData: (symbol, period) => 
-    api.get(`/api/historical-data?symbol=${symbol}&period=${period}`)
+  getQuote: async (symbol) => {
+    try {
+      const response = await api.get(`/api/stock-data?symbol=${symbol}`);
+      console.log('API Quote vastaus:', response); // Debug
+      return response.data || response; // Käsittele molemmat tapaukset
+    } catch (error) {
+      console.error('Error fetching stock quote:', error);
+      throw new Error(`Osakkeen haku epäonnistui: ${error.message}`);
+    }
+  },
+  
+  getHistoricalData: async (symbol, period) => {
+    try {
+      const response = await api.get(`/api/historical-data?symbol=${symbol}&period=${period}`);
+      console.log('API History vastaus:', response); // Debug
+      return response.data || response; // Käsittele molemmat tapaukset
+    } catch (error) {
+      console.error('Error fetching historical data:', error);
+      throw new Error(`Historiallisten tietojen haku epäonnistui: ${error.message}`);
+    }
+  }
 };
-
-// Käyttäjän API-toiminnot (korjattu versio)
+// Käyttäjän API-toiminnot
 export const userAPI = {
   register: async (userData) => {
     try {
@@ -141,3 +157,4 @@ export const alertAPI = {
   createAlert: (alertData) => api.post('/api/alerts', alertData),
   deleteAlert: (id) => api.delete(`/api/alerts/${id}`)
 };
+
