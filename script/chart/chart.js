@@ -68,9 +68,9 @@ export const chart = {
               type: 'time',
               time: {
                 unit: 'day',
-                tooltipFormat: 'DD.MM.YYYY',
+                tooltipFormat: 'dd.MM.yyyy', // ← korjattu muoto
                 displayFormats: {
-                  day: 'DD.MM'
+                  day: 'dd.MM' // ← korjattu muoto
                 }
               },
               title: { 
@@ -114,7 +114,6 @@ export const chart = {
     }
   },
 
-  // Päivitä kaavion data
   update: (labels, data) => {
     try {
       if (!priceChart) {
@@ -129,7 +128,6 @@ export const chart = {
     }
   },
 
-  // Lisää historiallinen data
   addHistoricalData: (historicalData, period) => {
     try {
       if (!priceChart) {
@@ -170,14 +168,13 @@ export const chart = {
         throw new Error('Ei kelvollisia hintatietoja');
       }
 
-      this.update(labels, prices);
+      chart.update(labels, prices);
     } catch (error) {
       console.error('Historiallisen datan lisäysvirhe:', error);
       throw error;
     }
   },
 
-  // Tuhoa kaavio
   destroy: () => {
     if (priceChart) {
       priceChart.destroy();
@@ -186,7 +183,6 @@ export const chart = {
   }
 };
 
-// Automaattinen alustus jos canvas löytyy
 document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('priceChart')) {
     chart.init();
