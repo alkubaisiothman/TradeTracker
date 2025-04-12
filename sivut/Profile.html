@@ -10,11 +10,8 @@
 <body>
   <nav class="main-navigation">
     <ul class="nav-list">
-      <!-- AINA NÄKYVÄT -->
       <li class="nav-item"><a href="/index.html" class="nav-link">Koti</a></li>
       <li class="nav-item"><a href="/index.html#introduction" class="nav-link">Tietoa meistä</a></li>
-  
-      <!-- KIRJAUTUNEEN NÄKYMÄ (piilotettu aluksi) -->
       <li id="user-greeting" class="nav-item user-greeting" style="display:none;"></li>
       <li id="profile-item" class="nav-item" style="display:none;">
         <a href="/sivut/Profile.html" class="nav-link">Profiili</a>
@@ -23,10 +20,8 @@
         <a href="/sivut/Alerts.html" class="nav-link">Hälytykset</a>
       </li>
       <li id="logout-item" class="nav-item" style="display:none;">
-        <button id="logout-btn" class="nav-button">Kirjaudu ulos</button>
+        <a href="#" id="logout-btn" class="nav-link">Kirjaudu ulos</a>
       </li>
-  
-      <!-- KIRJAUTUMATTOMAN NÄKYMÄ -->
       <li id="login-item" class="nav-item">
         <a href="/sivut/Login.html" class="nav-link">Kirjaudu sisään</a>
       </li>
@@ -39,7 +34,6 @@
   <main class="content-main">
     <div class="profile-container">
       <h1 class="section-title">Käyttäjäprofiili</h1>
-      
       <div class="profile-content">
         <div class="profile-info">
           <div class="profile-header">
@@ -53,7 +47,6 @@
               <p id="member-since">Jäsen alkaen: <span id="join-date">01.01.2023</span></p>
             </div>
           </div>
-          
           <div class="profile-stats">
             <div class="stat-card">
               <h3>Asetetut hälytykset</h3>
@@ -65,7 +58,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="profile-actions">
           <h3>Asetukset</h3>
           <div class="settings-form">
@@ -76,7 +69,7 @@
                 <button id="save-username" class="primary-button small">Tallenna</button>
               </div>
             </div>
-            
+
             <div class="form-group">
               <label for="change-password">Vaihda salasana</label>
               <div class="input-group">
@@ -86,7 +79,7 @@
                 <button id="save-password" class="primary-button small">Vaihda salasana</button>
               </div>
             </div>
-            
+
             <div class="form-group danger-zone">
               <h4>Vaaravyöhyke</h4>
               <button id="delete-account" class="danger-button">Poista tili</button>
@@ -110,7 +103,6 @@
   <script type="module" src="/script/ProfileScript.js"></script>
   <script type="module" src="/script/auth/auth.js"></script>
   <script type="module" src="/script/api/api.js"></script>
-  <script type="module" src="/script/chart/chart.js"></script>
   <script>
     document.getElementById('current-year').textContent = new Date().getFullYear();
   </script>

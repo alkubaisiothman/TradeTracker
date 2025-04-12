@@ -1,3 +1,4 @@
+<!-- Korjattu Alerts.html -->
 <!DOCTYPE html>
 <html lang="fi">
 <head>
@@ -6,8 +7,6 @@
   <title>TradeTrack - Hälytykset</title>
   <link rel="stylesheet" href="/styles/Alerts.Style.css" />
   <link rel="icon" href="/kuvat/tradetrack.jpg" type="image/jpg" />
-
-  <!-- Chart.js + pluginit -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
   <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
@@ -18,26 +17,12 @@
     <ul class="nav-list">
       <li class="nav-item"><a href="/index.html" class="nav-link">Koti</a></li>
       <li class="nav-item"><a href="/index.html#introduction" class="nav-link">Tietoa meistä</a></li>
-
-      <!-- Kirjautunut -->
       <li id="user-greeting" class="nav-item user-greeting" style="display:none;"></li>
-      <li id="profile-item" class="nav-item" style="display:none;">
-        <a href="/sivut/Profile.html" class="nav-link">Profiili</a>
-      </li>
-      <li id="alerts-item" class="nav-item" style="display:none;">
-        <a href="/sivut/Alerts.html" class="nav-link">Hälytykset</a>
-      </li>
-      <li id="logout-item" class="nav-item" style="display:none;">
-        <a href="#" id="logout-btn" class="nav-link">Kirjaudu ulos</a>
-      </li>
-
-      <!-- Kirjautumaton -->
-      <li id="login-item" class="nav-item">
-        <a href="/sivut/Login.html" class="nav-link">Kirjaudu sisään</a>
-      </li>
-      <li id="register-item" class="nav-item">
-        <a href="/sivut/Register.html" class="nav-link">Rekisteröidy</a>
-      </li>
+      <li id="profile-item" class="nav-item" style="display:none;"><a href="/sivut/Profile.html" class="nav-link">Profiili</a></li>
+      <li id="alerts-item" class="nav-item" style="display:none;"><a href="/sivut/Alerts.html" class="nav-link">Hälytykset</a></li>
+      <a href="#" id="logout-btn" class="nav-link">Kirjaudu ulos</a>
+      <li id="login-item" class="nav-item"><a href="/sivut/Login.html" class="nav-link">Kirjaudu sisään</a></li>
+      <li id="register-item" class="nav-item"><a href="/sivut/Register.html" class="nav-link">Rekisteröidy</a></li>
     </ul>
   </nav>
 
@@ -56,10 +41,8 @@
         <section id="stock-search" class="alert-section">
           <h2 class="section-title">Hae osakkeita</h2>
           <div class="search-container">
-            <input type="text" id="stock-symbol" 
-                   placeholder="Syötä osakkeen symboli (esim. AAPL, SAMPO.HE)" 
-                   class="search-input" autocomplete="off" />
-            <button id="search-button" class="search-button">
+            <input type="text" id="stock-symbol" class="search-input" placeholder="Syötä osakkeen symboli (esim. AAPL, SAMPO.HE)" autocomplete="off" />
+            <button id="search-button" class="primary-button small">
               <span id="search-text">Hae</span>
               <span id="search-spinner" class="loading-spinner small"></span>
             </button>
@@ -76,11 +59,11 @@
         <section id="stock-chart" class="alert-section">
           <h2 class="section-title">Hintakehitys</h2>
           <div id="chart-controls" class="chart-controls">
-            <button id="1-day" class="chart-button">1 päivä</button>
-            <button id="1-week" class="chart-button">1 viikko</button>
-            <button id="1-month" class="chart-button active">1 kuukausi</button>
-            <button id="1-year" class="chart-button">1 vuosi</button>
-            <button id="reset-zoom" class="chart-button secondary">Nollaa zoom</button>
+            <button id="1-day" class="secondary-button small">1 päivä</button>
+            <button id="1-week" class="secondary-button small">1 viikko</button>
+            <button id="1-month" class="secondary-button small active">1 kuukausi</button>
+            <button id="1-year" class="secondary-button small">1 vuosi</button>
+            <button id="reset-zoom" class="secondary-button small">Nollaa zoom</button>
           </div>
           <div class="chart-container">
             <div class="chart-wrapper">
@@ -97,10 +80,8 @@
         <section id="alerts" class="alert-section">
           <h2 class="section-title">Aseta hälytykset</h2>
           <div class="alert-form">
-            <input type="number" id="alert-price" 
-                   placeholder="Hinta (USD/EUR)" 
-                   class="alert-input" step="0.01" min="0" autocomplete="off" />
-            <button id="set-alert-button" class="alert-button">
+            <input type="number" id="alert-price" class="alert-input" placeholder="Hinta (USD/EUR)" step="0.01" min="0" autocomplete="off" />
+            <button id="set-alert-button" class="primary-button small">
               <span id="alert-text">Aseta hälytys</span>
               <span id="alert-spinner" class="loading-spinner small"></span>
             </button>
@@ -108,9 +89,7 @@
           <p id="alert-status" class="alert-status"></p>
           <div id="active-alerts" class="active-alerts-container">
             <h3>Aktiiviset hälytykset</h3>
-            <div id="alerts-list" class="alerts-list">
-              <!-- Hälytykset listataan tähän -->
-            </div>
+            <div id="alerts-list" class="alerts-list"></div>
           </div>
         </section>
       </div>
@@ -127,13 +106,10 @@
     </div>
   </footer>
 
-  <!-- JS-moduulit -->
   <script type="module" src="/script/auth/auth.js"></script>
   <script type="module" src="/script/api/api.js"></script>
   <script type="module" src="/script/chart/chart.js"></script>
   <script type="module" src="/script/AlertsScript.js"></script>
-
-  <!-- Copyright-vuosi -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('current-year').textContent = new Date().getFullYear();
