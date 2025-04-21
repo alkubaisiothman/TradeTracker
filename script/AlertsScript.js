@@ -80,9 +80,7 @@ const setAlertForStock = async (symbol, currentPrice) => {
 
 const showStockPrice = async (symbol) => {
   try {
-    const quoteResponse = await stockAPI.getQuote(symbol);
-    const quote = quoteResponse?.data;
-
+    const quote = await stockAPI.getQuote(symbol);
     if (quote?.['05. price']) {
       const price = parseFloat(quote['05. price']).toFixed(2);
       return `${symbol}: ${price} USD`;
@@ -107,7 +105,7 @@ const displayPopularStocks = async () => {
       return {
         symbol: stock.symbol,
         name: stock.name,
-        priceInfo: priceInfo
+        priceInfo
       };
     });
 
@@ -127,7 +125,7 @@ const displayPopularStocks = async () => {
     document.querySelectorAll('.stock-item').forEach(item => {
       item.addEventListener('click', async () => {
         const symbol = item.dataset.symbol;
-        await loadStockData(symbol, null);
+        await loadStockData(symbol);
         window.history.pushState({}, '', `?symbol=${symbol}`);
       });
     });
@@ -140,31 +138,21 @@ const displayPopularStocks = async () => {
   }
 };
 
-const loadStockData = async (symbol, chartInstance) => {
+const loadStockData = async (symbol) => {
   try {
     console.log('Aloitetaan osaketietojen haku symbolille:', symbol);
     showLoading('stock-data', true);
     showLoading('chart-loading', true);
 
-    console.log('Haetaan reaaliaikaista dataa...');
-    const quoteResponse = await stockAPI.getQuote(symbol);
-    console.log('Quote vastaus:', quoteResponse);
-
-    if (!quoteResponse || !quoteResponse.data || !quoteResponse.data['01. symbol']) {
+    const quote = await stockAPI.getQuote(symbol);
+    if (!quote || !quote['01. symbol']) {
       throw new Error('Osaketietoja ei saatu');
     }
 
-    displayStockData(quoteResponse.data);
+    displayStockData(quote);
 
-    console.log('Haetaan historiallista dataa...');
-    const historyResponse = await stockAPI.getHistoricalData(symbol, '1-month');
-    console.log('History vastaus:', historyResponse);
-
-    if (!historyResponse) {
-      throw new Error('Historiallisia tietoja ei saatu');
-    }
-
-    chart.addHistoricalData(historyResponse, '1-month');
+    const history = await stockAPI.getHistoricalData(symbol, '1-month');
+    chart.addHistoricalData(history, '1-month');
 
   } catch (error) {
     console.error('Osaketietojen latausvirhe:', error);
@@ -188,12 +176,12 @@ const initAlertsPage = async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const symbol = urlParams.get('symbol')?.toUpperCase() || 'AAPL';
 
-    await loadStockData(symbol, chartInstance);
+    await loadStockData(symbol);
 
     document.getElementById('search-button')?.addEventListener('click', async () => {
       const newSymbol = document.getElementById('stock-symbol')?.value.trim();
       if (newSymbol) {
-        await loadStockData(newSymbol, chartInstance);
+        await loadStockData(newSymbol);
         window.history.pushState({}, '', `?symbol=${newSymbol}`);
       }
     });
@@ -201,7 +189,7 @@ const initAlertsPage = async () => {
     document.querySelectorAll('.chart-button').forEach(button => {
       button.addEventListener('click', async () => {
         const period = button.id;
-        const symbol = document.getElementById('stock-symbol')?.value.trim() || 
+        const symbol = document.getElementById('stock-symbol')?.value.trim() ||
                        new URLSearchParams(window.location.search).get('symbol') || 'AAPL';
 
         try {
@@ -218,6 +206,11 @@ const initAlertsPage = async () => {
           showLoading('chart-loading', false);
         }
       });
+    });
+
+    // Reset zoom -nappi
+    document.getElementById('reset-zoom')?.addEventListener('click', () => {
+      chartInstance?.resetZoom?.();
     });
 
   } catch (error) {
