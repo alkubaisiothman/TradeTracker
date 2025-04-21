@@ -6,8 +6,11 @@ const POPULAR_STOCKS = [
   { symbol: 'AAPL', name: 'Apple Inc.' },
   { symbol: 'GOOGL', name: 'Alphabet Inc.' },
   { symbol: 'MSFT', name: 'Microsoft' },
-  { symbol: 'SAMPO.HE', name: 'Sampo Oyj' },
-  { symbol: 'NOKIA.HE', name: 'Nokia Oyj' }
+  { symbol: 'TSLA', name: 'Tesla, Inc.' },
+  { symbol: 'META', name: 'Meta Platforms, Inc.' },
+  { symbol: 'NVDA', name: 'NVIDIA Corporation' },
+  { symbol: 'AMZN', name: 'Amazon.com, Inc.' },
+  { symbol: 'AMD', name: 'Advanced Micro Devices, Inc.' }
 ];
 
 const showLoading = (elementId, isLoading = true) => {
