@@ -489,3 +489,60 @@
   border-color: var(--accent-color);
   box-shadow: 0 0 0 2px rgba(23, 195, 178, 0.3);
 }
+.profile-alerts {
+  margin-top: 2rem;
+  background-color: var(--secondary-bg);
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+}
+
+.alerts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.alert-card {
+  background-color: var(--primary-bg);
+  border-left: 4px solid var(--accent-color);
+  padding: 0.8rem 1rem;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+.alert-card strong {
+  color: var(--accent-color);
+}
+
+.alert-date {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.info-text {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  opacity: 0.8;
+  text-align: center;
+}
+.delete-alert-button {
+  background-color: #ff5252;
+  color: #fff;
+  border: none;
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.2s ease;
+}
+
+.delete-alert-button:hover {
+  background-color: #d32f2f;
+}

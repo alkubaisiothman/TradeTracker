@@ -1,116 +1,73 @@
-// /script/IndexScript.js
-import { auth } from './auth/auth.js';
 import { stockAPI } from './api/api.js';
+import { auth } from './auth/auth.js';
 
-// Suosituimmat osakkeet
-const POPULAR_STOCKS = [
-  { symbol: 'AAPL', name: 'Apple Inc.' },
-  { symbol: 'GOOGL', name: 'Alphabet Inc.' },
-  { symbol: 'MSFT', name: 'Microsoft' },
-  { symbol: 'SAMPO.HE', name: 'Sampo Oyj' },
-  { symbol: 'NOKIA.HE', name: 'Nokia Oyj' }
-];
+const FEATURED_SYMBOLS = ['AAPL', 'GOOGL', 'MSFT', 'TSLA', 'AMZN'];
 
-// Päivitä copyright-vuosi
-const updateCopyrightYear = () => {
-  const yearElement = document.getElementById('current-year');
-  if (yearElement) {
-    yearElement.textContent = new Date().getFullYear();
+const showLoading = (elementId, isLoading = true) => {
+  const element = document.getElementById(elementId);
+  if (!element) return;
+
+  if (isLoading) {
+    element.innerHTML = '<div class="loading-spinner"></div>';
+    element.style.display = 'block';
+  } else {
+    element.style.display = 'none';
   }
 };
 
-// Näytä osakkeen hinta tooltipissa
-const showStockPrice = async (symbol) => {
-  try {
-    const quote = await stockAPI.getQuote(symbol);
-    if (quote?.['Global Quote']) {
-      const price = parseFloat(quote['Global Quote']['05. price']).toFixed(2);
-      return `${symbol}: ${price} USD`;
-    }
-    return `${symbol}: Hinta ei saatavilla`;
-  } catch (error) {
-    console.error(`Osakkeen ${symbol} hinnan hakuvirhe:`, error);
-    return `${symbol}: Hinnan haku epäonnistui`;
+const showError = (message, elementId) => {
+  const el = document.getElementById(elementId);
+  if (el) {
+    el.innerHTML = `<p class="error">${message}</p>`;
   }
 };
 
-// Näytä suosituimmat osakkeet
-const displayPopularStocks = async () => {
-  const container = document.getElementById('stock-list');
+const displayStockCard = (symbol, price, changePercent) => {
+  return `
+    <div class="stock-card">
+      <h3>${symbol}</h3>
+      <p>Hinta: ${price} USD</p>
+      <p class="${parseFloat(changePercent) < 0 ? 'negative' : 'positive'}">
+        Muutos: ${changePercent}
+      </p>
+    </div>
+  `;
+};
+
+const loadFeaturedStocks = async () => {
+  const container = document.getElementById('featured-stocks');
   if (!container) return;
 
   try {
-    // Näytä latausanimaatio
-    container.innerHTML = '<div class="loading-spinner"></div>';
+    showLoading('featured-loading', true);
+    let html = '';
 
-    // Luo osakelista
-    let stocksHTML = '';
-    for (const stock of POPULAR_STOCKS) {
-      const priceInfo = await showStockPrice(stock.symbol);
-      stocksHTML += `
-        <div class="stock-item" data-symbol="${stock.symbol}">
-          <strong>${stock.symbol}</strong> - ${stock.name}
-          <span class="stock-price-tooltip">${priceInfo}</span>
-        </div>
-      `;
+    for (const symbol of FEATURED_SYMBOLS) {
+      try {
+        const quote = await stockAPI.getQuote(symbol);
+        const price = parseFloat(quote['05. price']).toFixed(2);
+        const changePercent = quote['10. change percent'];
+
+        html += displayStockCard(symbol, price, changePercent);
+      } catch (err) {
+        html += `<div class="stock-card error-card">
+          <h3>${symbol}</h3>
+          <p>Tietoja ei saatavilla</p>
+        </div>`;
+      }
     }
 
-    container.innerHTML = stocksHTML;
-
-    // Lisää tapahtumankäsittelijät
-    document.querySelectorAll('.stock-item').forEach(item => {
-      item.addEventListener('click', async () => {
-        const symbol = item.dataset.symbol;
-        try {
-          const priceInfo = await showStockPrice(symbol);
-          alert(priceInfo);
-        } catch (error) {
-          console.error('Osaketietojen haku epäonnistui:', error);
-          alert(`Osakkeen ${symbol} tietojen haku epäonnistui`);
-        }
-      });
-
-      // Lisää hover-efekti
-      item.addEventListener('mouseenter', () => {
-        const tooltip = item.querySelector('.stock-price-tooltip');
-        if (tooltip) {
-          tooltip.style.visibility = 'visible';
-        }
-      });
-
-      item.addEventListener('mouseleave', () => {
-        const tooltip = item.querySelector('.stock-price-tooltip');
-        if (tooltip) {
-          tooltip.style.visibility = 'hidden';
-        }
-      });
-    });
-
+    container.innerHTML = html;
   } catch (error) {
-    console.error('Osakelistauksen haku epäonnistui:', error);
-    container.innerHTML = `
-      <p class="error">Osakelistauksen haku epäonnistui</p>
-      <button id="retry-button">Yritä uudelleen</button>
-    `;
-    
-    document.getElementById('retry-button')?.addEventListener('click', displayPopularStocks);
+    showError('Osaketietojen haku epäonnistui', 'featured-stocks');
+  } finally {
+    showLoading('featured-loading', false);
   }
 };
 
-// Alusta etusivu
 const initIndexPage = () => {
-  // Alusta autentikointi
-  auth.init();
-  
-  // Näytä suosituimmat osakkeet
-  displayPopularStocks();
-  
-  // Päivitä copyright-vuosi
-  updateCopyrightYear();
-
-  // Lisää kirjautumistilan tarkkailija
-  auth.updateUI();
+  auth.check(); // Näyttää oikean yläpalkin
+  loadFeaturedStocks();
 };
 
-// Käynnistä sivu kun DOM on valmis
 document.addEventListener('DOMContentLoaded', initIndexPage);
