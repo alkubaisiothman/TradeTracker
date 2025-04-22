@@ -237,13 +237,14 @@ body {
 }
 
 .primary-button {
-  background-color: var(--accent-color);
-  color: var(--primary-bg);
+  background-color: var(--accent-color); /* Alkuperäinen väri */
+  color: var(--primary-bg); /* Tekstiväri */
 }
 
 .primary-button:hover {
-  background-color: #14a899;
+  background-color: #14a899; /* Hover-tila */
 }
+
 
 .secondary-button {
   background-color: transparent;

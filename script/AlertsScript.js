@@ -2,6 +2,7 @@ import { auth } from './auth/auth.js';
 import { stockAPI, alertAPI } from './api/api.js';
 import { chart } from './chart/chart.js';
 
+
 const POPULAR_STOCKS = [
   { symbol: 'AAPL', name: 'Apple Inc.' },
   { symbol: 'GOOGL', name: 'Alphabet Inc.' },
@@ -174,13 +175,14 @@ const initAlertsPage = async () => {
       throw new Error('Kaavion alustus epäonnistui');
     }
 
-    await displayPopularStocks();
+    // Ei automaattisesti ladata dataa alussa!
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const symbol = urlParams.get('symbol')?.toUpperCase() || 'AAPL';
+    // Suositut osakkeet -nappi
+    document.getElementById('load-popular-button')?.addEventListener('click', async () => {
+      await displayPopularStocks();
+    });
 
-    await loadStockData(symbol);
-
+    // Yksittäisen osakkeen haku
     document.getElementById('search-button')?.addEventListener('click', async () => {
       const newSymbol = document.getElementById('stock-symbol')?.value.trim();
       if (newSymbol) {
@@ -189,6 +191,7 @@ const initAlertsPage = async () => {
       }
     });
 
+    // Aikajaksopainikkeet
     document.querySelectorAll('.chart-button').forEach(button => {
       button.addEventListener('click', async () => {
         const period = button.id;

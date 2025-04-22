@@ -176,13 +176,45 @@ const Alert = mongoose.model('Alert', AlertSchema);
 const User = mongoose.model('User', UserSchema);
 
 // Sähköpostin lähetys
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
+async function sendAlertEmail({ symbol, price, currentPrice, email }) {
+  const mailOptions = {
+    from: `"TradeTrack" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: `Uusi hälytys asetettu osakkeelle ${symbol}`,
+    html: `
+      <div style="max-width:600px; margin:0 auto; font-family:Arial, sans-serif; background-color:#f9f9f9; padding:20px; border-radius:10px; border:1px solid #ddd;">
+        <div style="text-align:center; margin-bottom:20px;">
+          <img src="https://i.imgur.com/4M7IWwP.png" alt="TradeTrack Logo" style="width:120px; height:auto;" />
+          <h2 style="color:#0A192F;">Hälytys asetettu onnistuneesti!</h2>
+        </div>
+        <p style="font-size:16px; color:#333;">Hei,</p>
+        <p style="font-size:16px; color:#333;">
+          Olet asettanut hälytyksen osakkeelle <strong>${symbol}</strong>.
+        </p>
+        <ul style="list-style:none; padding:0; font-size:16px;">
+          <li><strong>Hälytyshinta:</strong> ${price} USD</li>
+          <li><strong>Nykyinen hinta:</strong> ${currentPrice} USD</li>
+        </ul>
+        <p style="font-size:16px; color:#333;">
+          Voit hallita hälytyksiäsi kirjautumalla sisään TradeTrack-sovellukseen.
+        </p>
+        <div style="text-align:center; margin-top:30px;">
+          <a href="http://localhost:5500/sivut/Alerts.html" style="background-color:#17C3B2; color:#fff; padding:10px 20px; text-decoration:none; border-radius:5px; font-weight:bold;">Avaa hälytyksesi</a>
+        </div>
+        <p style="font-size:12px; color:#aaa; margin-top:30px; text-align:center;">
+          © ${new Date().getFullYear()} TradeTrack – Group 14
+        </p>
+      </div>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Hälytyssähköposti lähetetty: ${email}`);
+  } catch (err) {
+    console.error('Sähköpostin lähetys epäonnistui:', err);
   }
-});
+}
 
 // Autentikointimiddleware (SIJRATTU YLÖS ENNEN KÄYTTÖÄ)
 function authenticateToken(req, res, next) {
@@ -762,5 +794,80 @@ process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err);
   server.close(() => process.exit(1));
 });
+
+//  HÄLYTYSSEURANTA 5 min välein
+function startAlertMonitor() {
+  const CHECK_INTERVAL = 5 * 60 * 1000;
+
+  setInterval(async () => {
+    console.log(`[ALERT-MONITOR] Käynnistetään hälytystarkistus...`);
+    try {
+      const activeAlerts = await Alert.find({ isActive: true, triggered: false });
+
+      for (const alert of activeAlerts) {
+        try {
+          const symbol = alert.symbol;
+          const priceLimit = alert.price;
+
+          const quote = await fetchStockData(symbol);
+          const currentPrice = parseFloat(quote['Global Quote']?.['05. price']);
+
+          if (!currentPrice || isNaN(currentPrice)) continue;
+
+          const thresholdReached = (priceLimit > currentPrice) || (priceLimit < currentPrice);
+
+          // Raja ylittynyt
+          if (thresholdReached) {
+            // Merkitään triggerediksi
+            alert.triggered = true;
+            alert.currentPrice = currentPrice;
+            await alert.save();
+
+            // Lähetetään ilmoitussähköposti
+            await transporter.sendMail({
+              from: `TradeTrack <${process.env.EMAIL_USER}>`,
+              to: alert.email,
+              subject: `🔔 Hälytys lauennut: ${symbol}`,
+              html: `
+                <div style="max-width:600px; margin:0 auto; font-family:Arial, sans-serif; background-color:#f9f9f9; padding:20px; border-radius:10px; border:1px solid #ddd;">
+                  <div style="text-align:center; margin-bottom:20px;">
+                    <img src="https://i.imgur.com/4M7IWwP.png" alt="TradeTrack Logo" style="width:120px; height:auto;" />
+                    <h2 style="color:#0A192F;">Hälytys lauennut!</h2>
+                  </div>
+                  <p style="font-size:16px; color:#333;">Hei,</p>
+                  <p style="font-size:16px; color:#333;">
+                    Asettamasi hälytys osakkeelle <strong>${symbol}</strong> on laukaissut.
+                  </p>
+                  <ul style="list-style:none; padding:0; font-size:16px;">
+                    <li><strong>Hälytyshinta:</strong> ${priceLimit} USD</li>
+                    <li><strong>Nykyinen hinta:</strong> ${currentPrice.toFixed(2)} USD</li>
+                  </ul>
+                  <p style="font-size:16px; color:#333;">
+                    Voit tarkastella hälytyksiä profiilissasi.
+                  </p>
+                  <div style="text-align:center; margin-top:30px;">
+                    <a href="http://localhost:5500/sivut/Alerts.html" style="background-color:#17C3B2; color:#fff; padding:10px 20px; text-decoration:none; border-radius:5px; font-weight:bold;">Avaa hälytykset</a>
+                  </div>
+                  <p style="font-size:12px; color:#aaa; margin-top:30px; text-align:center;">
+                    © ${new Date().getFullYear()} TradeTrack – Group 14
+                  </p>
+                </div>
+              `
+            });
+
+            console.log(`[ALERT-MONITOR] Sähköposti lähetetty käyttäjälle ${alert.email} (${symbol} @ ${currentPrice})`);
+          }
+        } catch (err) {
+          console.error(`[ALERT-MONITOR] Virhe yhden hälytyksen tarkistuksessa:`, err.message);
+        }
+      }
+    } catch (error) {
+      console.error('[ALERT-MONITOR] Tarkistus epäonnistui:', error.message);
+    }
+  }, CHECK_INTERVAL);
+}
+
+//  Käynnistä monitorointi palvelimen yhteydessä
+startAlertMonitor();
 
 module.exports = server;

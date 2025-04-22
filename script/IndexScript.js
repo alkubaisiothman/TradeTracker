@@ -67,7 +67,12 @@ const loadFeaturedStocks = async () => {
 
 const initIndexPage = () => {
   auth.check(); // Näyttää oikean yläpalkin
-  loadFeaturedStocks();
+
+  // Lisää tapahtumankuuntelija "Näytä osaketiedot" -napille
+  const showButton = document.getElementById('load-featured-button');
+  if (showButton) {
+    showButton.addEventListener('click', loadFeaturedStocks);
+  }
 };
 
 document.addEventListener('DOMContentLoaded', initIndexPage);

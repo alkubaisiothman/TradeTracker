@@ -320,3 +320,24 @@ button:hover,
 .footer-link:hover {
   color: var(--accent-color);
 }
+.alert-manual-fetch {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+.stock-info-box {
+  background-color: var(--secondary-bg);
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+  margin-top: 1rem;
+  color: var(--text-primary);
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.stock-summary h3 {
+  color: var(--accent-color);
+  margin-bottom: 0.5rem;
+}
