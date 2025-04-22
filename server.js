@@ -33,6 +33,13 @@ requiredEnvVars.forEach(env => {
   }
 });
 
+// Lisää tämä ennen reitityksiä
+app.use(cors({
+  origin: 'https://trade-track.netlify.app/',  // Vaihda tähän oikea frontendin URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
 // Turvallisuusmiddlewaret
 app.use(helmet());
 app.use(mongoSanitize());
@@ -49,13 +56,7 @@ const apiLimiter = rateLimit({
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cors({
-  origin: [
-    'http://localhost:5500',
-    'http://127.0.0.1:5500',
-    'http://localhost:5000',
-    'http://127.0.0.1:5000',
-    'https://trade-track.netlify.app' 
-  ],
+  origin: 'https://trade-track.netlify.app',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -169,7 +170,7 @@ UserSchema.pre('save', async function(next) {
 });
 
 // Vertaa salasanoja
-UserSchema.methods.comparePassword = async function(candidatePassword) {
+UserSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
@@ -277,12 +278,8 @@ async function fetchStockData(symbol, functionParam = 'GLOBAL_QUOTE') {
     throw error;
   }
 }
-// Lisää tämä ennen reitityksiä
-app.use(cors({
-  origin: 'https://trade-track.netlify.app/',  // Vaihda tähän oikea frontendin URL
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+
+app.options('*', cors()); // Sallii kaikki OPTIONS-pyynnöt
 
 // API-reitit
 app.get('/api/health', (req, res) => {
