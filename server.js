@@ -146,7 +146,15 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   }
-}, { 
+},
+{
+  trackedStocks: [ // <--- uusi kenttä
+    {type: String,
+      uppercase: true,
+      trim: true
+    }
+  ]
+}, {
   timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
@@ -443,9 +451,9 @@ app.post('/api/login', apiLimiter, async (req, res) => {
 app.get('/api/profile', authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.userId);
-    
+
     if (!user) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
         error: 'Käyttäjää ei löytynyt'
       });
@@ -462,7 +470,8 @@ app.get('/api/profile', authenticateToken, async (req, res) => {
           id: user._id,
           username: user.username,
           email: user.email,
-          createdAt: user.createdAt
+          createdAt: user.createdAt,
+          trackedStocks: user.trackedStocks || [] // <-- lisätty
         },
         alertCount: alerts.length,
         recentAlerts: alerts
@@ -470,7 +479,7 @@ app.get('/api/profile', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.error('Profiilin hakuvirhe:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
       error: error.message || 'Profiilin haku epäonnistui'
     });
@@ -597,6 +606,37 @@ app.delete('/api/profile', authenticateToken, async (req, res) => {
     });
   }
 });
+// Seurattavat osakkeet
+app.put('/api/profile/stocks', authenticateToken, async (req, res) => {
+  try {
+    const { trackedStocks } = req.body;
+
+    if (!Array.isArray(trackedStocks)) {
+      return res.status(400).json({
+        success: false,
+        error: 'trackedStocks täytyy olla taulukko'
+      });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.userId,
+      { trackedStocks },
+      { new: true, runValidators: true }
+    );
+
+    res.json({
+      success: true,
+      data: updatedUser.trackedStocks
+    });
+  } catch (error) {
+    console.error('Seurattujen osakkeiden päivitysvirhe:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Päivitys epäonnistui'
+    });
+  }
+});
+
 
 // Hälytykset
 app.post('/api/alerts', authenticateToken, apiLimiter, async (req, res) => {
