@@ -35,7 +35,7 @@ requiredEnvVars.forEach(env => {
 
 // Lisää tämä ennen reitityksiä
 app.use(cors({
-  origin: 'https://trade-track.netlify.app/',  // Vaihda tähän oikea frontendin URL
+  origin: 'https://trade-track.netlify.app',  // Vaihda tähän oikea frontendin URL
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
