@@ -176,6 +176,14 @@ const Alert = mongoose.model('Alert', AlertSchema);
 const User = mongoose.model('User', UserSchema);
 
 // Sähköpostin lähetys
+const transporter = nodemailer.createTransport({
+  service: 'gmail', // tai esim. Outlook
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
+
 async function sendAlertEmail({ symbol, price, currentPrice, email }) {
   const mailOptions = {
     from: `"TradeTrack" <${process.env.EMAIL_USER}>`,
@@ -268,6 +276,12 @@ async function fetchStockData(symbol, functionParam = 'GLOBAL_QUOTE') {
     throw error;
   }
 }
+// Lisää tämä ennen reitityksiä
+app.use(cors({
+  origin: 'https://trade-track.netlify.app/',  // Vaihda tähän oikea frontendin URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 // API-reitit
 app.get('/api/health', (req, res) => {

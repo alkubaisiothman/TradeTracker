@@ -72,39 +72,43 @@ const handleRegistration = async (event) => {
     submitBtn.innerHTML = '<span class="loading-spinner"></span> Rekisteröidään...';
     
     // Lähetä rekisteröintipyyntö
-    const response = await userAPI.register(formData);
-    
-    if (response.token) {
-      // Kirjaa käyttäjä sisään automaattisesti
-      auth.setToken(response.token, {
-        username: formData.username,
-        email: formData.email
-      });
-      
-      // Ohjaa kirjautuneena etusivulle
-      window.location.href = '/index.html';
-    }
-  } catch (error) {
-    console.error('Rekisteröintivirhe:', error);
-    
-    // Näytä käyttäjäystävällinen virheviesti
-    let errorMessage = 'Rekisteröinti epäonnistui';
-    if (error.message.includes('username')) {
-      errorMessage = 'Käyttäjänimi on jo käytössä';
-      document.getElementById('username-error').textContent = errorMessage;
-    } else if (error.message.includes('email')) {
-      errorMessage = 'Sähköposti on jo käytössä';
-      document.getElementById('email-error').textContent = errorMessage;
-    } else {
-      alert(errorMessage);
-    }
-  } finally {
-    // Palauta painike normaalitilaan
-    const submitBtn = form.querySelector('button[type="submit"]');
-    if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Rekisteröidy';
-    }
+    // Lähetä rekisteröintipyyntö
+  const response = await userAPI.register(formData);
+
+  if (response.token) {
+    // Kirjaa käyttäjä sisään automaattisesti
+    auth.setToken(response.token, {
+      username: formData.username,
+      email: formData.email
+    });
+
+    // Ohjaa kirjautuneena etusivulle
+    window.location.href = '/index.html';
+  }
+} catch (error) {
+  console.error('Rekisteröintivirhe:', error);
+  
+  // Näytä käyttäjäystävällinen virheviesti
+  let errorMessage = 'Rekisteröinti epäonnistui';
+  
+  // Tarkistetaan virheen tyyppi
+  if (error.message.includes('username')) {
+    errorMessage = 'Käyttäjänimi on jo käytössä';
+    document.getElementById('username-error').textContent = errorMessage;
+  } else if (error.message.includes('email')) {
+    errorMessage = 'Sähköposti on jo käytössä';
+    document.getElementById('email-error').textContent = errorMessage;
+  } else if (error.message.includes('Failed to fetch')) {
+    errorMessage = 'Yhteys rekisteröintipalveluun epäonnistui. Tarkista internet-yhteytesi tai yritä myöhemmin.';
+  }
+  
+  alert(errorMessage); // Näytä yleinen virheviesti
+} finally {
+  // Palauta painike normaalitilaan
+  const submitBtn = form.querySelector('button[type="submit"]');
+  if (submitBtn) {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Rekisteröidy';
   }
 };
 
@@ -117,4 +121,4 @@ const initRegisterPage = () => {
 };
 
 // Käynnistä sivu kun DOM on valmis
-document.addEventListener('DOMContentLoaded', initRegisterPage);
+document.addEventListener('DOMContentLoaded', initRegisterPage)}
