@@ -11,7 +11,6 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
-const User = require('./models/User');
 
 // Alusta Express-sovellus
 const app = express();
