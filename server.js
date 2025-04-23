@@ -270,6 +270,52 @@ async function fetchStockData(symbol) {
   }
 }
 
+// Historiallisten hintatietojen haku Finnhubilta
+async function fetchHistoricalData(symbol, period) {
+  const API_KEY = process.env.FINNHUB_API_KEY;
+  const resolutionMap = {
+    '1-day': '60',
+    '1-week': '60',
+    '1-month': 'D',
+    '1-year': 'M'
+  };
+
+  const resolution = resolutionMap[period] || 'D';
+  const now = Math.floor(Date.now() / 1000);
+  let from;
+
+  switch (period) {
+    case '1-day':
+      from = now - 60 * 60 * 24;
+      break;
+    case '1-week':
+      from = now - 60 * 60 * 24 * 7;
+      break;
+    case '1-month':
+      from = now - 60 * 60 * 24 * 30;
+      break;
+    case '1-year':
+      from = now - 60 * 60 * 24 * 365;
+      break;
+    default:
+      throw new Error('Virheellinen ajanjakso');
+  }
+
+  const url = `https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=${resolution}&from=${from}&to=${now}&token=${API_KEY}`;
+  const response = await fetch(url);
+  const data = await response.json();
+
+  if (data.s !== 'ok') {
+    throw new Error('Historiallisia tietoja ei löytynyt');
+  }
+
+  const timeSeries = data.t.map((timestamp, i) => ({
+    time: new Date(timestamp * 1000).toISOString(),
+    close: data.c[i]
+  }));
+
+  return timeSeries;
+}
 
 // API-reitit
 app.get('/api/health', (req, res) => {
@@ -319,71 +365,6 @@ app.get('/api/stock-data', apiLimiter, async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message || 'Virhe osaketietojen haussa'
-    });
-  }
-});
-
-// Historialliset tiedot
-app.get('/api/historical-data', apiLimiter, async (req, res) => {
-  try {
-    const { symbol, period } = req.query;
-
-    if (!symbol || !period) {
-      return res.status(400).json({ 
-        success: false,
-        error: 'Osaketunnus ja ajanjakso vaaditaan'
-      });
-    }
-
-    let resolution;
-    switch (period) {
-      case '1-day': resolution = '5'; break;
-      case '1-week': resolution = '30'; break;
-      case '1-month': resolution = 'D'; break;
-      case '1-year': resolution = 'W'; break;
-      default:
-        return res.status(400).json({ 
-          success: false,
-          error: 'Virheellinen ajanjakso'
-        });
-    }
-
-    const now = Math.floor(Date.now() / 1000); // nykyhetki sekunteina
-    let from;
-
-    switch (period) {
-      case '1-day': from = now - 60 * 60 * 24; break;        // 1 päivä
-      case '1-week': from = now - 60 * 60 * 24 * 7; break;   // 1 viikko
-      case '1-month': from = now - 60 * 60 * 24 * 30; break; // 1 kuukausi
-      case '1-year': from = now - 60 * 60 * 24 * 365; break; // 1 vuosi
-    }
-
-    const url = `https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=${resolution}&from=${from}&to=${now}&token=${process.env.FINNHUB_API_KEY}`;
-    const response = await fetch(url);
-    const json = await response.json();
-
-    if (json.s !== 'ok') {
-      return res.status(404).json({
-        success: false,
-        error: 'Historiallisia tietoja ei löytynyt',
-        data: json
-      });
-    }
-
-    // Palautetaan Finnhubin candle-datan timestampit ja closing prices
-    res.json({
-      success: true,
-      data: {
-        t: json.t,
-        c: json.c
-      }
-    });
-
-  } catch (error) {
-    console.error('Historiallisten tietojen haku epäonnistui:', error);
-    res.status(500).json({ 
-      success: false,
-      error: error.message || 'Historiallisten tietojen haku epäonnistui'
     });
   }
 });
