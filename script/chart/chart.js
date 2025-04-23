@@ -180,7 +180,9 @@ export const chart = {
       priceChart.destroy();
       priceChart = null;
     }
-  }
+  },
+
+  getChartInstance: () => priceChart
 };
 
 document.addEventListener('DOMContentLoaded', () => {
