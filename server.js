@@ -27,7 +27,7 @@ const API_RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minuuttia
 const API_RATE_LIMIT_MAX = 100;
 
 // Tarkista pakolliset ympäristömuuttujat
-const requiredEnvVars = ['JWT_SECRET', 'MONGO_URI', 'ALPHA_VANTAGE_API_KEY'];
+const requiredEnvVars = ['JWT_SECRET', 'MONGO_URI', 'FINNHUB_API_KEY'];
 requiredEnvVars.forEach(env => {
   if (!process.env[env]) {
     console.error(`VIRHE: ${env} ympäristömuuttuja puuttuu`);
@@ -251,30 +251,30 @@ function authenticateToken(req, res, next) {
 }
 
 // Apufunktio API-kutsuille
-async function fetchStockData(symbol, functionParam = 'GLOBAL_QUOTE') {
-  console.log(`Käytetään API-avainta: ${process.env.ALPHA_VANTAGE_API_KEY}`); // Lisätty
-  const url = `https://www.alphavantage.co/query?function=${functionParam}&symbol=${symbol}&apikey=${process.env.ALPHA_VANTAGE_API_KEY}`;
-  console.log('URL:', url); // Lisätty debug-tuloste
-  
+async function fetchStockData(symbol) {
+  const API_KEY = process.env.FINNHUB_API_KEY;
+  const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${API_KEY}`;
+
+  console.log('Hakee tiedot osoitteesta:', url);
+
   try {
     const response = await fetch(url);
     const data = await response.json();
 
-    if (data.Note) {
-      throw new Error(`API rajoitus: ${data.Note}`);
+    if (!data || !data.c) {
+      throw new Error('Virheellinen data tai osaketta ei löytynyt');
     }
 
-    if (data.Information) {
-      throw new Error(`API info: ${data.Information}`);
-    }
+    // Palautetaan muotoiltu data vastaamaan vanhaa rakennetta
+    return {
+      '01. symbol': symbol,
+      '05. price': data.c.toString(),            // current price
+      '09. change': (data.c - data.pc).toFixed(2), // change
+      '10. change percent': ((data.c - data.pc) / data.pc * 100).toFixed(2) + '%' // percent
+    };
 
-    if (data['Error Message']) {
-      throw new Error(data['Error Message']);
-    }
-
-    return data;
   } catch (error) {
-    console.error('API-kutsun virhe:', error);
+    console.error('Finnhub API-virhe:', error.message);
     throw error;
   }
 }
