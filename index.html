@@ -106,8 +106,6 @@
       const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
       
       if (isLoggedIn) {
-        document.getElementById('guest-view').style.display = 'none';
-        document.getElementById('user-view').style.display = 'block';
         // Voit myös näyttää käyttäjän nimen
         const username = localStorage.getItem('username') || 'Käyttäjä';
         document.getElementById('user-greeting').textContent = `Hei, ${username}`;

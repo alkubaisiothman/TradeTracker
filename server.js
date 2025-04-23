@@ -291,39 +291,43 @@ app.get('/api/health', (req, res) => {
 });
 
 // Osaketiedot
+// Reitti stock-data:lle (Finnhub Quote)
 app.get('/api/stock-data', apiLimiter, async (req, res) => {
   try {
     const { symbol } = req.query;
-    console.log('Haetaan osaketietoja symbolille:', symbol); // Debug
-    
+    console.log('Haetaan osaketietoja symbolille:', symbol);
+
     if (!symbol) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
         error: 'Osaketunnus vaaditaan'
       });
     }
+    const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${process.env.FINNHUB_API_KEY}`);
+    const data = await response.json();
 
-    const data = await fetchStockData(symbol);
-    console.log('API vastaus:', JSON.stringify(data, null, 2)); // Debug
-    
-    if (!data || !data['Global Quote']) {
-      return res.status(404).json({ 
+    if (!data || !data.c) {
+      return res.status(404).json({
         success: false,
         error: 'Osaketietoja ei löytynyt',
-        receivedData: data // Lisätty debug-tieto
+        receivedData: data
       });
     }
+    const formattedData = {
+      '01. symbol': symbol,
+      '05. price': data.c.toString(),
+      '09. change': data.d?.toString() || '0',
+      '10. change percent': (data.dp?.toFixed(2) + '%') || '0%'
+    };
 
-    res.json({
-      success: true,
-      data: data['Global Quote']
-    });
+    console.log('Palautetaan frontendille:', formattedData);
+    res.json({ success: true, data: formattedData });
+
   } catch (error) {
-    console.error('Osaketietojen haku epäonnistui:', error);
-    res.status(500).json({ 
+    console.error('Virhe stock-data-haussa:', error);
+    res.status(500).json({
       success: false,
-      error: error.message || 'Osaketietojen haku epäonnistui',
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      error: error.message || 'Virhe osaketietojen haussa'
     });
   }
 });
