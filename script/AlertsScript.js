@@ -106,7 +106,7 @@ const displayPopularStocks = async () => {
 
   try {
     showLoading('stocks-loading', true);
-    container.innerHTML = ''; // Clear previous content
+    container.innerHTML = '';
 
     const stockPromises = POPULAR_STOCKS.map(async (stock) => {
       const priceInfo = await showStockPrice(stock.symbol);
@@ -144,7 +144,6 @@ const loadStockData = async (symbol) => {
     showLoading('stock-data', true);
     showLoading('chart-loading', true);
 
-    // Initialize chart if not already done
     if (!chart.getChartInstance()) {
       chart.init();
     }
@@ -159,9 +158,11 @@ const loadStockData = async (symbol) => {
     }
 
     displayStockData(symbol, quote);
-    chart.addHistoricalData(history, '1-month');
+    chart.update(
+      history.t.map(ts => new Date(ts * 1000)),
+      history.c
+    );
 
-    // Update URL without reload
     window.history.pushState({}, '', `?symbol=${symbol}`);
 
   } catch (error) {
@@ -176,21 +177,17 @@ const initAlertsPage = async () => {
   try {
     if (!auth.check(true)) return;
 
-    // Initialize chart first
     const chartInstance = chart.init();
     if (!chartInstance) {
       throw new Error('Kaavion alustus epäonnistui');
     }
 
-    // Load stock based on URL or default to AAPL
     const urlParams = new URLSearchParams(window.location.search);
     const symbol = urlParams.get('symbol') || 'AAPL';
     await loadStockData(symbol);
 
-    // Load popular stocks automatically
     await displayPopularStocks();
 
-    // Event delegation for stock items
     document.getElementById('stock-list')?.addEventListener('click', async (e) => {
       const stockItem = e.target.closest('.stock-item');
       if (stockItem) {
@@ -199,7 +196,6 @@ const initAlertsPage = async () => {
       }
     });
 
-    // Search button handler
     document.getElementById('search-button')?.addEventListener('click', async () => {
       const newSymbol = document.getElementById('stock-symbol')?.value.trim();
       if (newSymbol) {
@@ -207,18 +203,20 @@ const initAlertsPage = async () => {
       }
     });
 
-    // Chart period buttons
     document.querySelectorAll('.chart-button').forEach(button => {
       if (button.id !== 'reset-zoom') {
         button.addEventListener('click', async () => {
           const period = button.id;
-          const symbol = document.getElementById('stock-symbol')?.value.trim() || 
+          const symbol = document.getElementById('stock-symbol')?.value.trim() ||
                          new URLSearchParams(window.location.search).get('symbol') || 'AAPL';
 
           try {
             showLoading('chart-loading', true);
             const history = await stockAPI.getHistoricalData(symbol, period);
-            chart.addHistoricalData(history, period);
+            chart.update(
+              history.t.map(ts => new Date(ts * 1000)),
+              history.c
+            );
 
             document.querySelectorAll('.chart-button').forEach(btn => {
               btn.classList.toggle('active', btn.id === period);
@@ -232,12 +230,10 @@ const initAlertsPage = async () => {
       }
     });
 
-    // Reset zoom button
     document.getElementById('reset-zoom')?.addEventListener('click', () => {
       chartInstance?.resetZoom?.();
     });
 
-    // Load popular stocks button
     document.getElementById('load-popular-button')?.addEventListener('click', async () => {
       await displayPopularStocks();
     });
@@ -248,5 +244,4 @@ const initAlertsPage = async () => {
   }
 };
 
-// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', initAlertsPage);

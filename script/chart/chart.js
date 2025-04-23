@@ -68,17 +68,17 @@ export const chart = {
               type: 'time',
               time: {
                 unit: 'day',
-                tooltipFormat: 'dd.MM.yyyy', // ← korjattu muoto
+                tooltipFormat: 'dd.MM.yyyy',
                 displayFormats: {
-                  day: 'dd.MM' // ← korjattu muoto
+                  day: 'dd.MM'
                 }
               },
-              title: { 
-                display: true, 
+              title: {
+                display: true,
                 text: 'Aika',
                 color: '#666'
               },
-              grid: { 
+              grid: {
                 display: false
               },
               ticks: {
@@ -86,12 +86,12 @@ export const chart = {
               }
             },
             y: {
-              title: { 
-                display: true, 
+              title: {
+                display: true,
                 text: 'Hinta (USD)',
                 color: '#666'
               },
-              grid: { 
+              grid: {
                 color: 'rgba(255, 255, 255, 0.1)'
               },
               ticks: {
@@ -116,10 +116,7 @@ export const chart = {
 
   update: (labels, data) => {
     try {
-      if (!priceChart) {
-        throw new Error('Kaaviota ei ole alustettu');
-      }
-      
+      if (!priceChart) throw new Error('Kaaviota ei ole alustettu');
       priceChart.data.labels = labels;
       priceChart.data.datasets[0].data = data;
       priceChart.update();
@@ -128,51 +125,23 @@ export const chart = {
     }
   },
 
-  addHistoricalData: (historicalData, period) => {
+  addHistoricalData: (historicalData) => {
     try {
-      if (!priceChart) {
-        throw new Error('Kaaviota ei ole alustettu');
+      if (!priceChart) throw new Error('Kaaviota ei ole alustettu');
+
+      // Finnhubin oletettu formaatti:
+      // { t: [timestamp1, timestamp2, ...], c: [price1, price2, ...] }
+      const timestamps = historicalData.t;
+      const prices = historicalData.c;
+
+      if (!Array.isArray(timestamps) || !Array.isArray(prices)) {
+        throw new Error('Virheellinen historiatiedon muoto');
       }
 
-      let timeSeries;
-      switch (period) {
-        case '1-day': 
-          timeSeries = historicalData['Time Series (60min)']; 
-          break;
-        case '1-week':
-        case '1-month': 
-          timeSeries = historicalData['Time Series (Daily)']; 
-          break;
-        case '1-year': 
-          timeSeries = historicalData['Monthly Time Series']; 
-          break;
-        default: 
-          throw new Error(`Virheellinen ajanjakso: ${period}`);
-      }
-
-      if (!timeSeries) {
-        console.error('Virheellinen historiatieto: timeSeries puuttuu');
-        return; // Lopetetaan suoritus, jos timeSeries puuttuu
-      }
-
-      const labels = Object.keys(timeSeries).reverse();
-      const prices = labels.map(date => {
-        const priceData = timeSeries[date];
-        if (!priceData) {
-          console.warn(`Hintatieto puuttuu päivälle ${date}`);
-          return null;
-        }
-        return parseFloat(priceData['4. close']);
-      }).filter(price => price !== null);
-
-      if (prices.length === 0) {
-        throw new Error('Ei kelvollisia hintatietoja');
-      }
-
+      const labels = timestamps.map(ts => new Date(ts * 1000));
       chart.update(labels, prices);
     } catch (error) {
       console.error('Historiallisen datan lisäysvirhe:', error);
-      throw error;
     }
   },
 
