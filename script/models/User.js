@@ -6,14 +6,15 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    minlength: 3
+    minlength: 3,
+    maxlength: 20,
   },
   email: {
     type: String,
     required: true,
     unique: true,
     lowercase: true,
-    trim: true
+    trim: true,
   },
   password: {
     type: String,
@@ -23,19 +24,21 @@ const UserSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   }
 });
 
-UserSchema.pre('save', async function(next) {
+// Salasanan hashays
+UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
-UserSchema.methods.comparePassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+// Vertailu funktio
+UserSchema.methods.comparePassword = function (candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
-module.exports = mongoose.models.User || mongoose.model('User', UserSchema);
+module.exports = mongoose.model('User', UserSchema);
