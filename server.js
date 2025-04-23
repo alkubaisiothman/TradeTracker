@@ -740,7 +740,7 @@ app.post('/api/alerts', authenticateToken, apiLimiter, async (req, res) => {
     try {
       await transporter.sendMail({
         from: `TradeTrack <${process.env.EMAIL_USER}>`,
-        to: req.user.email,
+        to: alert.email,  // Tämä on oikein, käytetään alertin sähköpostia
         subject: `Uusi hälytys asetettu: ${symbol}`,
         html: `
           <h2>Hälytys asetettu onnistuneesti</h2>
