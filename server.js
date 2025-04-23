@@ -11,6 +11,7 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
+const User = require('./models/User');
 
 // Alusta Express-sovellus
 const app = express();
@@ -35,10 +36,13 @@ requiredEnvVars.forEach(env => {
 
 // Lisää tämä ennen reitityksiä
 app.use(cors({
-  origin: 'https://trade-track.netlify.app',  // Vaihda tähän oikea frontendin URL
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: 'https://trade-track.netlify.app',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+app.options('*', cors()); 
 
 // Turvallisuusmiddlewaret
 app.use(helmet());
@@ -155,6 +159,7 @@ const UserSchema = new mongoose.Schema({
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
+const User = mongoose.model('User', UserSchema);
 
 // Salasana hash ennen tallennusta
 UserSchema.pre('save', async function(next) {
@@ -167,9 +172,10 @@ UserSchema.pre('save', async function(next) {
 UserSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
-
+UserSchema.methods.comparePassword = async function (candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
 const Alert = mongoose.model('Alert', AlertSchema);
-const User = mongoose.model('User', UserSchema);
 
 // Sähköpostin lähetys
 const transporter = nodemailer.createTransport({
@@ -273,7 +279,6 @@ async function fetchStockData(symbol, functionParam = 'GLOBAL_QUOTE') {
   }
 }
 
-app.options('*', cors()); // Sallii kaikki OPTIONS-pyynnöt
 
 // API-reitit
 app.get('/api/health', (req, res) => {
