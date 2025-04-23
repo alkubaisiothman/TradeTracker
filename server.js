@@ -11,6 +11,8 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
+const User = require('./models/User'); 
+
 
 // Alusta Express-sovellus
 const app = express();
@@ -158,7 +160,6 @@ const UserSchema = new mongoose.Schema({
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
-const User = mongoose.models.User || mongoose.model('User', UserSchema);
 
 // Salasana hash ennen tallennusta
 UserSchema.pre('save', async function(next) {
