@@ -179,13 +179,27 @@ const Alert = mongoose.model('Alert', AlertSchema);
 
 // Sähköpostin lähetys
 const transporter = nodemailer.createTransport({
-  service: 'Office365', // Käytetään Office365-merkkiä
+  service: 'Office365',
   auth: {
-    user: process.env.EMAIL_USER, // Sähköpostiosoite (esim. user@outlook.com)
-    pass: process.env.EMAIL_PASS  // Sovellussalasana (jos käytät kaksivaiheista tunnistautumista)
+    user: process.env.EMAIL_USER, // Lähettäjän sähköposti (esim. `youremail@outlook.com`)
+    pass: process.env.EMAIL_PASS  // Sovellussalasana
   },
   tls: {
     ciphers: 'SSLv3'  // Täsmennetään yhteyden salaus
+  }
+});
+
+// Lähetä sähköposti kirjautuneelle käyttäjälle
+transporter.sendMail({
+  from: process.env.EMAIL_USER,  // Lähettäjän sähköposti
+  to: req.user.email,            // Käyttäjän sähköpostiosoite (dynaamisesti)
+  subject: 'Osakehintahälytys',
+  text: 'Tässä on osakehintahälytyksesi.'  // Sähköpostin sisältö
+}, (error, info) => {
+  if (error) {
+    console.log('Virhe sähköpostin lähetyksessä:', error);
+  } else {
+    console.log('Sähköposti lähetetty:', info.response);
   }
 });
 
