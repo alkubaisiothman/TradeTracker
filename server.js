@@ -177,32 +177,6 @@ UserSchema.methods.comparePassword = async function (candidatePassword) {
 };
 const Alert = mongoose.model('Alert', AlertSchema);
 
-// Sähköpostin lähetys
-const transporter = nodemailer.createTransport({
-  service: 'Office365',
-  auth: {
-    user: process.env.EMAIL_USER, // Lähettäjän sähköposti (esim. `youremail@outlook.com`)
-    pass: process.env.EMAIL_PASS  // Sovellussalasana
-  },
-  tls: {
-    ciphers: 'SSLv3'  // Täsmennetään yhteyden salaus
-  }
-});
-
-// Lähetä sähköposti kirjautuneelle käyttäjälle
-transporter.sendMail({
-  from: process.env.EMAIL_USER,  // Lähettäjän sähköposti
-  to: req.user.email,            // Käyttäjän sähköpostiosoite (dynaamisesti)
-  subject: 'Osakehintahälytys',
-  text: 'Tässä on osakehintahälytyksesi.'  // Sähköpostin sisältö
-}, (error, info) => {
-  if (error) {
-    console.log('Virhe sähköpostin lähetyksessä:', error);
-  } else {
-    console.log('Sähköposti lähetetty:', info.response);
-  }
-});
-
 async function sendAlertEmail({ symbol, price, currentPrice, email }) {
   const mailOptions = {
     from: `"TradeTrack" <${process.env.EMAIL_USER}>`,
@@ -718,14 +692,14 @@ app.put('/api/profile/stocks', authenticateToken, async (req, res) => {
 app.post('/api/alerts', authenticateToken, apiLimiter, async (req, res) => {
   try {
     const { symbol, price, currentPrice } = req.body;
-    
+
     if (!symbol || !price || !currentPrice) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
         error: 'Kaikki kentät ovat pakollisia'
       });
     }
-    
+
     const newAlert = new Alert({
       symbol,
       price,
@@ -736,36 +710,42 @@ app.post('/api/alerts', authenticateToken, apiLimiter, async (req, res) => {
 
     await newAlert.save();
 
-    // Lähetä sähköpostivahvistus
-    try {
-      await transporter.sendMail({
-        from: `TradeTrack <${process.env.EMAIL_USER}>`,
-        to: alert.email,  // Tämä on oikein, käytetään alertin sähköpostia
-        subject: `Uusi hälytys asetettu: ${symbol}`,
-        html: `
-          <h2>Hälytys asetettu onnistuneesti</h2>
+    // ✅ Lähetetään sähköposti onnistuneesti asettamisesta
+    const mailOptions = {
+      from: `TradeTrack <${process.env.EMAIL_USER}>`,
+      to: req.user.email, // ✅ suoraan kirjautuneen käyttäjän email
+      subject: `✅ Hälytys asetettu: ${symbol}`,
+      html: `
+        <div style="font-family:Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px;">
+          <h2 style="color:#0A192F;">Hälytys asetettu onnistuneesti!</h2>
           <p>Olet asettanut hälytyksen osakkeelle <strong>${symbol}</strong>.</p>
-          <p><strong>Hälytyshinta:</strong> ${price} USD</p>
-          <p><strong>Nykyinen hinta:</strong> ${currentPrice} USD</p>
-          <p>Voit hallita hälytyksiä profiilissasi.</p>
-        `
-      });
-    } catch (emailError) {
-      console.error('Sähköpostin lähetysvirhe:', emailError);
-    }
+          <ul>
+            <li><strong>Hälytyshinta:</strong> ${price} USD</li>
+            <li><strong>Nykyinen hinta:</strong> ${currentPrice} USD</li>
+          </ul>
+          <p>Voit hallita hälytyksiäsi <a href="https://trade-track.netlify.app/sivut/Alerts.html">TradeTrackin Hälytykset-sivulta</a>.</p>
+          <p style="font-size:12px; color:#888;">© ${new Date().getFullYear()} TradeTrack – Group 14</p>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`✅ Hälytyssähköposti lähetetty: ${req.user.email}`);
 
     res.status(201).json({
       success: true,
       data: newAlert
     });
+
   } catch (error) {
     console.error('Hälytyksen tallennusvirhe:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
       error: error.message || 'Hälytyksen tallennus epäonnistui'
     });
   }
 });
+
 
 app.delete('/api/alerts/:id', authenticateToken, async (req, res) => {
   try {
