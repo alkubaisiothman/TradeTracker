@@ -151,7 +151,8 @@ export const chart = {
       }
 
       if (!timeSeries) {
-        throw new Error('Virheellinen historiatieto: timeSeries puuttuu');
+        console.error('Virheellinen historiatieto: timeSeries puuttuu');
+        return; // Lopetetaan suoritus, jos timeSeries puuttuu
       }
 
       const labels = Object.keys(timeSeries).reverse();
