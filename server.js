@@ -49,7 +49,7 @@ app.options('*', cors());
 app.use(helmet());
 app.use(mongoSanitize());
 app.use(hpp());
-
+app.set('trust proxy', 1);
 // Rajoita API-kutsujen määrää
 const apiLimiter = rateLimit({
   windowMs: API_RATE_LIMIT_WINDOW,
