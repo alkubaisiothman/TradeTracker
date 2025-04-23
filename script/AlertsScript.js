@@ -2,7 +2,6 @@ import { auth } from './auth/auth.js';
 import { stockAPI, alertAPI } from './api/api.js';
 import { chart } from './chart/chart.js';
 
-
 const POPULAR_STOCKS = [
   { symbol: 'AAPL', name: 'Apple Inc.' },
   { symbol: 'GOOGL', name: 'Alphabet Inc.' },
@@ -35,8 +34,14 @@ const showError = (message, elementId = 'stock-data') => {
 };
 
 const displayStockData = (quote) => {
+  console.log('Displaying stock data:', quote); // Debug log
   const container = document.getElementById('stock-data');
-  if (!container || !quote || !quote['01. symbol']) {
+  if (!container) {
+    console.error('Stock data container not found');
+    return;
+  }
+
+  if (!quote || !quote['01. symbol']) {
     showError('Osaketietoja ei saatavilla');
     return;
   }
@@ -102,7 +107,7 @@ const displayPopularStocks = async () => {
 
   try {
     showLoading('stocks-loading', true);
-    let stocksHTML = '';
+    container.innerHTML = ''; // Clear previous content
 
     const stockPromises = POPULAR_STOCKS.map(async (stock) => {
       const priceInfo = await showStockPrice(stock.symbol);
@@ -116,22 +121,14 @@ const displayPopularStocks = async () => {
     const stocksWithPrices = await Promise.all(stockPromises);
 
     stocksWithPrices.forEach(stock => {
-      stocksHTML += `
-        <div class="stock-item" data-symbol="${stock.symbol}">
-          <strong>${stock.symbol}</strong> - ${stock.name}
-          <span class="stock-price-tooltip">${stock.priceInfo}</span>
-        </div>
+      const stockElement = document.createElement('div');
+      stockElement.className = 'stock-item';
+      stockElement.dataset.symbol = stock.symbol;
+      stockElement.innerHTML = `
+        <strong>${stock.symbol}</strong> - ${stock.name}
+        <span class="stock-price-tooltip">${stock.priceInfo}</span>
       `;
-    });
-
-    container.innerHTML = stocksHTML;
-
-    document.querySelectorAll('.stock-item').forEach(item => {
-      item.addEventListener('click', async () => {
-        const symbol = item.dataset.symbol;
-        await loadStockData(symbol);
-        window.history.pushState({}, '', `?symbol=${symbol}`);
-      });
+      container.appendChild(stockElement);
     });
 
   } catch (error) {
@@ -144,19 +141,29 @@ const displayPopularStocks = async () => {
 
 const loadStockData = async (symbol) => {
   try {
-    console.log('Aloitetaan osaketietojen haku symbolille:', symbol);
+    console.log('Loading stock data for:', symbol);
     showLoading('stock-data', true);
     showLoading('chart-loading', true);
 
-    const quote = await stockAPI.getQuote(symbol);
+    // Initialize chart if not already done
+    if (!chart.getChartInstance()) {
+      chart.init();
+    }
+
+    const [quote, history] = await Promise.all([
+      stockAPI.getQuote(symbol),
+      stockAPI.getHistoricalData(symbol, '1-month')
+    ]);
+
     if (!quote || !quote['01. symbol']) {
       throw new Error('Osaketietoja ei saatu');
     }
 
     displayStockData(quote);
-
-    const history = await stockAPI.getHistoricalData(symbol, '1-month');
     chart.addHistoricalData(history, '1-month');
+
+    // Update URL without reload
+    window.history.pushState({}, '', `?symbol=${symbol}`);
 
   } catch (error) {
     console.error('Osaketietojen latausvirhe:', error);
@@ -170,53 +177,70 @@ const initAlertsPage = async () => {
   try {
     if (!auth.check(true)) return;
 
+    // Initialize chart first
     const chartInstance = chart.init();
     if (!chartInstance) {
       throw new Error('Kaavion alustus epäonnistui');
     }
 
-    // Ei automaattisesti ladata dataa alussa!
+    // Load stock based on URL or default to AAPL
+    const urlParams = new URLSearchParams(window.location.search);
+    const symbol = urlParams.get('symbol') || 'AAPL';
+    await loadStockData(symbol);
 
-    // Suositut osakkeet -nappi
-    document.getElementById('load-popular-button')?.addEventListener('click', async () => {
-      await displayPopularStocks();
+    // Load popular stocks automatically
+    await displayPopularStocks();
+
+    // Event delegation for stock items
+    document.getElementById('stock-list')?.addEventListener('click', async (e) => {
+      const stockItem = e.target.closest('.stock-item');
+      if (stockItem) {
+        const symbol = stockItem.dataset.symbol;
+        await loadStockData(symbol);
+      }
     });
 
-    // Yksittäisen osakkeen haku
+    // Search button handler
     document.getElementById('search-button')?.addEventListener('click', async () => {
       const newSymbol = document.getElementById('stock-symbol')?.value.trim();
       if (newSymbol) {
         await loadStockData(newSymbol);
-        window.history.pushState({}, '', `?symbol=${newSymbol}`);
       }
     });
 
-    // Aikajaksopainikkeet
+    // Chart period buttons
     document.querySelectorAll('.chart-button').forEach(button => {
-      button.addEventListener('click', async () => {
-        const period = button.id;
-        const symbol = document.getElementById('stock-symbol')?.value.trim() ||
-                       new URLSearchParams(window.location.search).get('symbol') || 'AAPL';
+      if (button.id !== 'reset-zoom') {
+        button.addEventListener('click', async () => {
+          const period = button.id;
+          const symbol = document.getElementById('stock-symbol')?.value.trim() || 
+                         new URLSearchParams(window.location.search).get('symbol') || 'AAPL';
 
-        try {
-          showLoading('chart-loading', true);
-          const history = await stockAPI.getHistoricalData(symbol, period);
-          chart.addHistoricalData(history, period);
+          try {
+            showLoading('chart-loading', true);
+            const history = await stockAPI.getHistoricalData(symbol, period);
+            chart.addHistoricalData(history, period);
 
-          document.querySelectorAll('.chart-button').forEach(btn => {
-            btn.classList.toggle('active', btn.id === period);
-          });
-        } catch (error) {
-          showError(`Datan haku epäonnistui: ${error.message}`);
-        } finally {
-          showLoading('chart-loading', false);
-        }
-      });
+            document.querySelectorAll('.chart-button').forEach(btn => {
+              btn.classList.toggle('active', btn.id === period);
+            });
+          } catch (error) {
+            showError(`Datan haku epäonnistui: ${error.message}`);
+          } finally {
+            showLoading('chart-loading', false);
+          }
+        });
+      }
     });
 
-    // Reset zoom -nappi
+    // Reset zoom button
     document.getElementById('reset-zoom')?.addEventListener('click', () => {
       chartInstance?.resetZoom?.();
+    });
+
+    // Load popular stocks button
+    document.getElementById('load-popular-button')?.addEventListener('click', async () => {
+      await displayPopularStocks();
     });
 
   } catch (error) {
@@ -225,4 +249,5 @@ const initAlertsPage = async () => {
   }
 };
 
+// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', initAlertsPage);
