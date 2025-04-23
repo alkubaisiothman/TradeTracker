@@ -159,7 +159,7 @@ const UserSchema = new mongoose.Schema({
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
-const User = mongoose.model('User', UserSchema);
+const User = mongoose.models.User || mongoose.model('User', UserSchema);
 
 // Salasana hash ennen tallennusta
 UserSchema.pre('save', async function(next) {
