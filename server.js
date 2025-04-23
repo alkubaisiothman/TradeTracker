@@ -871,7 +871,7 @@ function startAlertMonitor() {
             // Lähetetään ilmoitussähköposti
             await transporter.sendMail({
               from: `TradeTrack <${process.env.EMAIL_USER}>`,
-              to: alert.email,
+              to: req.user.email, // <- OIKEIN! Tämä on route-käsittelijän sisällä
               subject: `🔔 Hälytys lauennut: ${symbol}`,
               html: `
                 <div style="max-width:600px; margin:0 auto; font-family:Arial, sans-serif; background-color:#f9f9f9; padding:20px; border-radius:10px; border:1px solid #ddd;">
