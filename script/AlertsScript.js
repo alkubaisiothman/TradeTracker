@@ -33,32 +33,31 @@ const showError = (message, elementId = 'stock-data') => {
   console.error(message);
 };
 
-const displayStockData = (quote) => {
-  console.log('Displaying stock data:', quote); // Debug log
+const displayStockData = (symbol, quote) => {
   const container = document.getElementById('stock-data');
-  if (!container) {
-    console.error('Stock data container not found');
-    return;
-  }
-
-  if (!quote || !quote['01. symbol']) {
+  if (!container || !quote || !quote['05. price']) {
     showError('Osaketietoja ei saatavilla');
     return;
   }
 
+  const price = parseFloat(quote['05. price']).toFixed(2);
+  const change = parseFloat(quote['09. change']).toFixed(2);
+  const changePercent = quote['10. change percent'];
+  const isNegative = parseFloat(change) < 0;
+
   container.innerHTML = `
     <div class="stock-info">
-      <h3>${quote['01. symbol']}</h3>
-      <p>Hinta: ${parseFloat(quote['05. price']).toFixed(2)} USD</p>
-      <p class="${quote['09. change'].startsWith('-') ? 'negative' : 'positive'}">
-        Muutos: ${parseFloat(quote['09. change']).toFixed(2)} (${quote['10. change percent']})
+      <h3>${symbol}</h3>
+      <p>Hinta: ${price} USD</p>
+      <p class="${isNegative ? 'negative' : 'positive'}">
+        Muutos: ${change} (${changePercent})
       </p>
       <button id="set-alert-btn" class="alert-button">Aseta hälytys</button>
     </div>
   `;
 
   document.getElementById('set-alert-btn')?.addEventListener('click', () => {
-    setAlertForStock(quote['01. symbol'], parseFloat(quote['05. price']));
+    setAlertForStock(symbol, parseFloat(price));
   });
 };
 
@@ -159,7 +158,7 @@ const loadStockData = async (symbol) => {
       throw new Error('Osaketietoja ei saatu');
     }
 
-    displayStockData(quote);
+    displayStockData(symbol, quote);
     chart.addHistoricalData(history, '1-month');
 
     // Update URL without reload
