@@ -22,13 +22,15 @@ const showError = (message, elementId) => {
   }
 };
 
-const displayStockCard = (symbol, price, changePercent) => {
+const displayStockCard = (symbol, price, change, changePercent) => {
+  const changeClass = parseFloat(change) < 0 ? 'negative' : 'positive';
+
   return `
     <div class="stock-card">
       <h3>${symbol}</h3>
       <p>Hinta: ${price} USD</p>
-      <p class="${parseFloat(changePercent) < 0 ? 'negative' : 'positive'}">
-        Muutos: ${changePercent}
+      <p class="${changeClass}">
+        Muutos: ${change} (${changePercent})
       </p>
     </div>
   `;
@@ -45,20 +47,25 @@ const loadFeaturedStocks = async () => {
     for (const symbol of FEATURED_SYMBOLS) {
       try {
         const quote = await stockAPI.getQuote(symbol);
+
         const price = parseFloat(quote['05. price']).toFixed(2);
+        const change = parseFloat(quote['09. change']).toFixed(2);
         const changePercent = quote['10. change percent'];
 
-        html += displayStockCard(symbol, price, changePercent);
+        html += displayStockCard(symbol, price, change, changePercent);
       } catch (err) {
-        html += `<div class="stock-card error-card">
-          <h3>${symbol}</h3>
-          <p>Tietoja ei saatavilla</p>
-        </div>`;
+        html += `
+          <div class="stock-card error-card">
+            <h3>${symbol}</h3>
+            <p>Tietoja ei saatavilla</p>
+          </div>
+        `;
       }
     }
 
     container.innerHTML = html;
   } catch (error) {
+    console.error('Virhe ladattaessa suositeltuja osakkeita:', error);
     showError('Osaketietojen haku epäonnistui', 'featured-stocks');
   } finally {
     showLoading('featured-loading', false);
@@ -66,9 +73,8 @@ const loadFeaturedStocks = async () => {
 };
 
 const initIndexPage = () => {
-  auth.check(); // Näyttää oikean yläpalkin
+  auth.check(); // Tarkistaa kirjautumisen ja näyttää navin
 
-  // Lisää tapahtumankuuntelija "Näytä osaketiedot" -napille
   const showButton = document.getElementById('load-featured-button');
   if (showButton) {
     showButton.addEventListener('click', loadFeaturedStocks);
