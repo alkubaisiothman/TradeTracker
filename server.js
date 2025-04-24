@@ -369,6 +369,29 @@ app.get('/api/stock-data', apiLimiter, async (req, res) => {
   }
 });
 
+app.get('/api/historical-data', apiLimiter, async (req, res) => {
+  try {
+    const { symbol, period } = req.query;
+    if (!symbol || !period) {
+      return res.status(400).json({ success: false, error: 'symbol ja period ovat pakollisia' });
+    }
+
+    const historicalData = await fetchHistoricalData(symbol, period);
+    const timestamps = historicalData.map(d => new Date(d.time).getTime() / 1000);
+    const closes = historicalData.map(d => d.close);
+
+    res.json({
+      success: true,
+      data: {
+        t: timestamps,
+        c: closes
+      }
+    });
+  } catch (error) {
+    console.error('Historiallisten tietojen hakuvirhe:', error.message);
+    res.status(500).json({ success: false, error: error.message || 'Virhe historiallisissa tiedoissa' });
+  }
+});
 // Käyttäjähallinta
 app.post('/api/register', apiLimiter, async (req, res) => {
   try {
