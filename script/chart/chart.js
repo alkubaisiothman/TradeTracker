@@ -26,14 +26,16 @@ export const chart = {
           if (elements.length > 0) {
             const index = elements[0].index;
             const symbol = priceChart.data.labels[index];
-            window.dispatchEvent(new CustomEvent('stockSelected', { detail: symbol }));
+            if (symbol) {
+              window.dispatchEvent(new CustomEvent('stockSelected', { detail: symbol }));
+            }
           }
         },
         plugins: {
           legend: { display: false },
           tooltip: {
             callbacks: {
-              label: ctx => `${ctx.dataset.label}: ${ctx.raw.toFixed(2)} USD`
+              label: ctx => `Hinta: ${ctx.raw.toFixed(2)} USD`
             }
           }
         },
@@ -57,7 +59,7 @@ export const chart = {
   },
 
   updateBarChart: (symbols, prices) => {
-    if (!priceChart) return;
+    if (!priceChart || !Array.isArray(symbols) || !Array.isArray(prices)) return;
     priceChart.data.labels = symbols;
     priceChart.data.datasets[0].data = prices;
     priceChart.update();

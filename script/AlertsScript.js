@@ -13,6 +13,8 @@ const POPULAR_STOCKS = [
   { symbol: 'AMD', name: 'Advanced Micro Devices, Inc.' }
 ];
 
+let popularVisible = true;
+
 const showLoading = (elementId, isLoading = true) => {
   const element = document.getElementById(elementId);
   if (!element) return;
@@ -143,24 +145,12 @@ const loadStockData = async (symbol) => {
       chart.init();
     }
 
-    const [quote, history] = await Promise.all([
-      stockAPI.getQuote(symbol),
-      stockAPI.getHistoricalData(symbol, '1-month')
-    ]);
-
+    const quote = await stockAPI.getQuote(symbol);
     if (!quote || !quote['01. symbol']) {
       throw new Error('Osaketietoja ei saatu');
     }
 
     displayStockData(symbol, quote);
-
-    if (!history || !Array.isArray(history.t) || history.t.length === 0) {
-      document.getElementById('chart-message').style.display = 'block';
-      document.querySelector('.chart-container').style.display = 'none';
-      return;
-    }
-
-    showError('Historiallista hintadataa ei tueta ilmaisella API-avaimella');
 
     window.history.pushState({}, '', `?symbol=${symbol}`);
 
@@ -203,39 +193,29 @@ const initAlertsPage = async () => {
       }
     });
 
-    document.querySelectorAll('.chart-button').forEach(button => {
-      if (button.id !== 'reset-zoom') {
-        button.addEventListener('click', async () => {
-          const period = button.id;
-          const symbol = document.getElementById('stock-symbol')?.value.trim() ||
-                         new URLSearchParams(window.location.search).get('symbol') || 'AAPL';
-
-          try {
-            showLoading('chart-loading', true);
-            const history = await stockAPI.getHistoricalData(symbol, period);
-            chart.update(
-              history.t.map(ts => new Date(ts * 1000)),
-              history.c
-            );
-
-            document.querySelectorAll('.chart-button').forEach(btn => {
-              btn.classList.toggle('active', btn.id === period);
-            });
-          } catch (error) {
-            showError(`Datan haku epäonnistui: ${error.message}`);
-          } finally {
-            showLoading('chart-loading', false);
-          }
-        });
-      }
-    });
-
     document.getElementById('reset-zoom')?.addEventListener('click', () => {
       chartInstance?.resetZoom?.();
     });
 
+    // Päivitetty toggle-nappi: piilottaa ja näyttää suositut osakkeet
     document.getElementById('load-popular-button')?.addEventListener('click', async () => {
-      await displayPopularStocks();
+      const chartContainer = document.querySelector('.chart-container');
+      const chartMessage = document.getElementById('chart-message');
+
+      if (popularVisible) {
+        // Piilota suositut ja kaavio
+        if (chartContainer) chartContainer.style.display = 'none';
+        if (chartMessage) chartMessage.style.display = 'none';
+        document.getElementById('load-popular-button').textContent = 'Näytä suositut';
+      } else {
+        // Näytä suositut ja kaavio
+        if (chartContainer) chartContainer.style.display = 'block';
+        if (chartMessage) chartMessage.style.display = 'none';
+        await displayPopularStocks();
+        document.getElementById('load-popular-button').textContent = 'Piilota suositut';
+      }
+
+      popularVisible = !popularVisible;
     });
 
   } catch (error) {

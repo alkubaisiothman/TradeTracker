@@ -15,7 +15,7 @@ const handleResponse = async (response) => {
 const getHeaders = (requireAuth) => {
   const headers = {
     'Content-Type': 'application/json',
-    'Accept': 'application/json' // <- TÄMÄ LISÄTÄÄN
+    'Accept': 'application/json'
   };
   if (requireAuth) {
     const token = localStorage.getItem('authToken');
@@ -64,14 +64,10 @@ export const api = {
   }
 };
 
+// VAIN nykyisen osaketiedon haku (ilman historiallista dataa)
 export const stockAPI = {
   getQuote: async (symbol) => {
     const response = await api.get(`/api/stock-data?symbol=${symbol}`, false);
-    return response.data;
-  },
-
-  getHistoricalData: async (symbol, period) => {
-    const response = await api.get(`/api/historical-data?symbol=${symbol}&period=${period}`, false);
     return response.data;
   }
 };
