@@ -694,7 +694,7 @@ app.post('/api/alerts', authenticateToken, apiLimiter, async (req, res) => {
     // ✅ Lähetetään sähköposti onnistuneesti asettamisesta
     const mailOptions = {
       from: `TradeTrack <${process.env.EMAIL_USER}>`,
-      to: req.user.email, // ✅ suoraan kirjautuneen käyttäjän email
+      to: alert.email, // ✅ suoraan kirjautuneen käyttäjän email
       subject: `✅ Hälytys asetettu: ${symbol}`,
       html: `
         <div style="font-family:Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px;">
@@ -832,7 +832,7 @@ function startAlertMonitor() {
             // Lähetetään ilmoitussähköposti
             await transporter.sendMail({
               from: `TradeTrack <${process.env.EMAIL_USER}>`,
-              to: req.user.email, // <- OIKEIN! Tämä on route-käsittelijän sisällä
+              to: alert.email, // <- OIKEIN! Tämä on route-käsittelijän sisällä
               subject: `🔔 Hälytys lauennut: ${symbol}`,
               html: `
                 <div style="max-width:600px; margin:0 auto; font-family:Arial, sans-serif; background-color:#f9f9f9; padding:20px; border-radius:10px; border:1px solid #ddd;">
