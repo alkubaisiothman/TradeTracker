@@ -101,40 +101,27 @@ const showStockPrice = async (symbol) => {
 };
 
 const displayPopularStocks = async () => {
-  const container = document.getElementById('stock-list');
-  if (!container) return;
-
   try {
-    showLoading('stocks-loading', true);
-    container.innerHTML = '';
+    showLoading('chart-loading', true);
 
-    const stockPromises = POPULAR_STOCKS.map(async (stock) => {
-      const priceInfo = await showStockPrice(stock.symbol);
-      return {
-        symbol: stock.symbol,
-        name: stock.name,
-        priceInfo
-      };
-    });
+    const stocks = await Promise.all(POPULAR_STOCKS.map(async stock => {
+      const quote = await stockAPI.getQuote(stock.symbol);
+      const price = parseFloat(quote['05. price']);
+      return { symbol: stock.symbol, price };
+    }));
 
-    const stocksWithPrices = await Promise.all(stockPromises);
+    const sorted = stocks
+      .filter(s => !isNaN(s.price))
+      .sort((a, b) => b.price - a.price);
 
-    stocksWithPrices.forEach(stock => {
-      const stockElement = document.createElement('div');
-      stockElement.className = 'stock-item';
-      stockElement.dataset.symbol = stock.symbol;
-      stockElement.innerHTML = `
-        <strong>${stock.symbol}</strong> - ${stock.name}
-        <span class="stock-price-tooltip">${stock.priceInfo}</span>
-      `;
-      container.appendChild(stockElement);
-    });
+    const symbols = sorted.map(s => s.symbol);
+    const prices = sorted.map(s => s.price);
 
-  } catch (error) {
-    console.error('Osakelistauksen haku epäonnistui:', error);
-    showError('Osakelistauksen haku epäonnistui', 'stock-list');
+    chart.updateBarChart(symbols, prices);
+  } catch (err) {
+    showError('Suositut osakkeet eivät latautuneet: ' + err.message);
   } finally {
-    showLoading('stocks-loading', false);
+    showLoading('chart-loading', false);
   }
 };
 
@@ -165,10 +152,8 @@ const loadStockData = async (symbol) => {
       return;
     }
 
-    chart.update(
-      history.t.map(ts => new Date(ts * 1000)),
-      history.c
-    );
+    showError('Historiallista hintadataa ei tueta ilmaisella API-avaimella');
+
 
     window.history.pushState({}, '', `?symbol=${symbol}`);
 
@@ -252,3 +237,8 @@ const initAlertsPage = async () => {
 };
 
 document.addEventListener('DOMContentLoaded', initAlertsPage);
+window.addEventListener('stockSelected', async (e) => {
+  const symbol = e.detail;
+  document.getElementById('stock-symbol').value = symbol;
+  await loadStockData(symbol);
+});
