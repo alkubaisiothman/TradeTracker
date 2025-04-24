@@ -158,6 +158,12 @@ const loadStockData = async (symbol) => {
     }
 
     displayStockData(symbol, quote);
+
+    if (!history || !Array.isArray(history.t)) {
+      showError('Historiadataa ei voitu ladata. Osake ei ehkä ole tuettu ilmaisessa palvelussa.');
+      return;
+    }
+
     chart.update(
       history.t.map(ts => new Date(ts * 1000)),
       history.c

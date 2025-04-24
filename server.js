@@ -270,13 +270,13 @@ async function fetchStockData(symbol) {
 async function fetchHistoricalData(symbol, period) {
   const API_KEY = process.env.FINNHUB_API_KEY;
   const resolutionMap = {
-    '1-day': '60',
-    '1-week': '60',
-    '1-month': 'D',
+    '1-day': 'W',       // Vaihda 'D' -> 'W' (weekly)
+    '1-week': 'W',
+    '1-month': 'W',
     '1-year': 'M'
   };
 
-  const resolution = resolutionMap[period] || 'D';
+  const resolution = resolutionMap[period] || 'W';
   const now = Math.floor(Date.now() / 1000);
   let from;
 
@@ -302,21 +302,20 @@ async function fetchHistoricalData(symbol, period) {
 
   const response = await fetch(url);
   const data = await response.json();
-  console.log('[DEBUG] Historical API response:', JSON.stringify(data, null, 2));
+  console.log('[DEBUG] Historical API response:', data);
 
   if (data.s !== 'ok') {
-    throw new Error(`Finnhub palautti virheen: ${data.s || 'tuntematon syy'}`);
+    throw new Error('Finnhub palautti virheen: ' + (data.error || 'tuntematon syy'));
   }
 
-  if (!Array.isArray(data.t) || !Array.isArray(data.c) || data.t.length === 0 || data.c.length === 0) {
-    throw new Error('Historiallista dataa ei saatavilla (tyhjät tai puuttuvat tiedot)');
-  }
-
-  return data.t.map((timestamp, i) => ({
+  const timeSeries = data.t.map((timestamp, i) => ({
     time: new Date(timestamp * 1000).toISOString(),
     close: data.c[i]
   }));
+
+  return timeSeries;
 }
+
 
 // API-reitit
 app.get('/api/health', (req, res) => {
