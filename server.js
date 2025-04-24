@@ -172,9 +172,6 @@ UserSchema.pre('save', async function(next) {
 UserSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
-UserSchema.methods.comparePassword = async function (candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
-};
 const Alert = mongoose.model('Alert', AlertSchema);
 
 async function sendAlertEmail({ symbol, price, currentPrice, email }) {
@@ -270,7 +267,6 @@ async function fetchStockData(symbol) {
   }
 }
 
-// Historiallisten hintatietojen haku Finnhubilta
 async function fetchHistoricalData(symbol, period) {
   const API_KEY = process.env.FINNHUB_API_KEY;
   const resolutionMap = {
@@ -302,19 +298,24 @@ async function fetchHistoricalData(symbol, period) {
   }
 
   const url = `https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=${resolution}&from=${from}&to=${now}&token=${API_KEY}`;
+  console.log('[DEBUG] Fetching historical data from:', url);
+
   const response = await fetch(url);
   const data = await response.json();
+  console.log('[DEBUG] Historical API response:', JSON.stringify(data, null, 2));
 
   if (data.s !== 'ok') {
-    throw new Error('Historiallisia tietoja ei löytynyt');
+    throw new Error(`Finnhub palautti virheen: ${data.s || 'tuntematon syy'}`);
   }
 
-  const timeSeries = data.t.map((timestamp, i) => ({
+  if (!Array.isArray(data.t) || !Array.isArray(data.c) || data.t.length === 0 || data.c.length === 0) {
+    throw new Error('Historiallista dataa ei saatavilla (tyhjät tai puuttuvat tiedot)');
+  }
+
+  return data.t.map((timestamp, i) => ({
     time: new Date(timestamp * 1000).toISOString(),
     close: data.c[i]
   }));
-
-  return timeSeries;
 }
 
 // API-reitit
@@ -392,6 +393,7 @@ app.get('/api/historical-data', apiLimiter, async (req, res) => {
     res.status(500).json({ success: false, error: error.message || 'Virhe historiallisissa tiedoissa' });
   }
 });
+
 // Käyttäjähallinta
 app.post('/api/register', apiLimiter, async (req, res) => {
   try {
@@ -717,7 +719,7 @@ app.post('/api/alerts', authenticateToken, apiLimiter, async (req, res) => {
     // ✅ Lähetetään sähköposti onnistuneesti asettamisesta
     const mailOptions = {
       from: `TradeTrack <${process.env.EMAIL_USER}>`,
-      to: alert.email, // ✅ suoraan kirjautuneen käyttäjän email
+      to: req.user.email, // ✅ suoraan kirjautuneen käyttäjän email
       subject: `✅ Hälytys asetettu: ${symbol}`,
       html: `
         <div style="font-family:Arial, sans-serif; max-width:600px; margin:0 auto; padding:20px;">
@@ -849,7 +851,7 @@ function startAlertMonitor() {
             // Lähetetään ilmoitussähköposti
             await transporter.sendMail({
               from: `TradeTrack <${process.env.EMAIL_USER}>`,
-              to: alert.email, // <- OIKEIN! Tämä on route-käsittelijän sisällä
+              to: req.user.email, // <- OIKEIN! Tämä on route-käsittelijän sisällä
               subject: `🔔 Hälytys lauennut: ${symbol}`,
               html: `
                 <div style="max-width:600px; margin:0 auto; font-family:Arial, sans-serif; background-color:#f9f9f9; padding:20px; border-radius:10px; border:1px solid #ddd;">
