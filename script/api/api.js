@@ -14,7 +14,8 @@ const handleResponse = async (response) => {
 
 const getHeaders = (requireAuth) => {
   const headers = {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'Accept': 'application/json' // <- TÄMÄ LISÄTÄÄN
   };
   if (requireAuth) {
     const token = localStorage.getItem('authToken');

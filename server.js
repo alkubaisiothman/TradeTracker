@@ -755,12 +755,6 @@ app.delete('/api/alerts/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Staattisten sivujen reititys
-app.use(express.static(__dirname));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
 // 404-virheenkäsittelijä
 app.use((req, res) => {
   res.status(404).json({ 
