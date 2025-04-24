@@ -1,3 +1,4 @@
+// profileScript.js
 import { auth } from './auth/auth.js';
 import { userAPI } from './api/api.js';
 import { Chart, LineController, LineElement, PointElement, LinearScale, TimeScale, Title, Tooltip, Filler } from 'chart.js';
@@ -5,20 +6,15 @@ import 'chartjs-adapter-date-fns';
 
 Chart.register(LineController, LineElement, PointElement, LinearScale, TimeScale, Title, Tooltip, Filler);
 
-const updateProfileUI = (data) => {
-  const { user, alertCount, recentAlerts } = data;
-
+const updateProfileUI = ({ user, alertCount, recentAlerts }) => {
   document.getElementById('profile-username').textContent = user.username || 'Ei saatavilla';
   document.getElementById('profile-email').textContent = user.email || 'Ei saatavilla';
-
-  if (user.createdAt) {
-    const joinDate = new Date(user.createdAt).toLocaleDateString('fi-FI');
-    document.getElementById('join-date').textContent = joinDate;
-  }
-
   document.getElementById('alerts-count').textContent = alertCount ?? '0';
   document.getElementById('stocks-count').textContent = user.trackedStocks?.length || '0';
 
+  if (user.createdAt) {
+    document.getElementById('join-date').textContent = new Date(user.createdAt).toLocaleDateString('fi-FI');
+  }
   if (user.avatarUrl) {
     document.getElementById('profile-avatar').src = user.avatarUrl;
   }
@@ -31,12 +27,9 @@ const renderAlerts = (alerts = []) => {
   const container = document.getElementById('recent-alerts');
   if (!container) return;
 
-  if (alerts.length === 0) {
-    container.innerHTML = '<p class="info-text">Ei aktiivisia hälytyksiä.</p>';
-    return;
-  }
-
-  container.innerHTML = '';
+  container.innerHTML = alerts.length === 0
+    ? '<p class="info-text">Ei aktiivisia hälytyksiä.</p>'
+    : '';
 
   alerts.forEach(alert => {
     const card = document.createElement('div');
@@ -55,9 +48,9 @@ const renderAlerts = (alerts = []) => {
     card.querySelector('.delete-alert-button').addEventListener('click', async () => {
       if (!confirm(`Haluatko varmasti poistaa hälytyksen ${alert.symbol}?`)) return;
       try {
-        await import('./api/api.js').then(module => module.alertAPI.deleteAlert(alert._id));
+        await (await import('./api/api.js')).alertAPI.deleteAlert(alert._id);
         card.remove();
-      } catch (error) {
+      } catch {
         alert('Poisto epäonnistui');
       }
     });
@@ -76,10 +69,9 @@ const renderAlerts = (alerts = []) => {
           },
           body: JSON.stringify({ price })
         });
-
         card.querySelector('.alert-price').textContent = price.toFixed(2);
         alert('Hälytys päivitetty!');
-      } catch (error) {
+      } catch {
         alert('Muokkaus epäonnistui');
       }
     });
@@ -92,12 +84,10 @@ const renderTrackedStocks = (symbols = []) => {
   const container = document.getElementById('tracked-stocks-list');
   if (!container) return;
 
-  if (symbols.length === 0) {
-    container.innerHTML = '<p class="info-text">Ei seurattuja osakkeita.</p>';
-    return;
-  }
+  container.innerHTML = symbols.length === 0
+    ? '<p class="info-text">Ei seurattuja osakkeita.</p>'
+    : '';
 
-  container.innerHTML = '';
   symbols.forEach(symbol => {
     const wrapper = document.createElement('div');
     wrapper.className = 'stock-item-row';
@@ -114,7 +104,6 @@ const renderTrackedStocks = (symbols = []) => {
       </div>
     `;
 
-    // Poisto
     wrapper.querySelector('.remove-stock-button').addEventListener('click', async () => {
       if (!confirm(`Poistetaanko ${symbol} seuratuista?`)) return;
       try {
@@ -122,12 +111,11 @@ const renderTrackedStocks = (symbols = []) => {
         await updateTrackedStocks(updated);
         renderTrackedStocks(updated);
         document.getElementById('stocks-count').textContent = updated.length;
-      } catch (err) {
+      } catch {
         alert('Poisto epäonnistui');
       }
     });
 
-    // Historia
     wrapper.querySelector('.show-history-button').addEventListener('click', async () => {
       const chartContainer = document.getElementById(`history-${symbol}`);
       if (chartContainer.style.display === 'none') {
@@ -214,10 +202,7 @@ const loadAndRenderChart = async (symbol, canvas) => {
 
 const updateUsername = async () => {
   const newUsername = document.getElementById('change-username').value.trim();
-  if (!newUsername || newUsername.length < 3) {
-    alert('Käyttäjänimen tulee olla vähintään 3 merkkiä pitkä');
-    return;
-  }
+  if (!newUsername || newUsername.length < 3) return alert('Vähintään 3 merkkiä');
   try {
     await userAPI.updateProfile({ username: newUsername });
     alert('Käyttäjänimi päivitetty!');
@@ -234,14 +219,9 @@ const updatePassword = async () => {
   const currentPassword = document.getElementById('current-password').value;
   const newPassword = document.getElementById('new-password').value;
   const confirmPassword = document.getElementById('confirm-new-password').value;
-  if (newPassword !== confirmPassword) {
-    alert('Salasanat eivät täsmää');
-    return;
-  }
-  if (newPassword.length < 6) {
-    alert('Salasanan pitää olla vähintään 6 merkkiä');
-    return;
-  }
+  if (newPassword !== confirmPassword) return alert('Salasanat eivät täsmää');
+  if (newPassword.length < 6) return alert('Salasanan pitää olla vähintään 6 merkkiä');
+
   try {
     await userAPI.updatePassword({ currentPassword, newPassword });
     alert('Salasana vaihdettu!');
@@ -290,12 +270,11 @@ const initProfilePage = async () => {
         renderTrackedStocks(updated);
         document.getElementById('stocks-count').textContent = updated.length;
         input.value = '';
-      } catch (err) {
+      } catch {
         alert('Lisäys epäonnistui');
       }
     });
-
-  } catch (error) {
+  } catch {
     alert('Profiilitietojen haku epäonnistui');
   }
 };

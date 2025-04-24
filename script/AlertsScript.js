@@ -125,6 +125,14 @@ const displayPopularStocks = async () => {
   }
 };
 
+const getSymbolByName = (input) => {
+  const lower = input.toLowerCase();
+  const match = POPULAR_STOCKS.find(
+    s => s.symbol.toLowerCase() === lower || s.name.toLowerCase().includes(lower)
+  );
+  return match?.symbol || input.toUpperCase();
+};
+
 const loadStockData = async (symbol) => {
   try {
     console.log('Loading stock data for:', symbol);
@@ -153,7 +161,6 @@ const loadStockData = async (symbol) => {
     }
 
     showError('Historiallista hintadataa ei tueta ilmaisella API-avaimella');
-
 
     window.history.pushState({}, '', `?symbol=${symbol}`);
 
@@ -189,9 +196,10 @@ const initAlertsPage = async () => {
     });
 
     document.getElementById('search-button')?.addEventListener('click', async () => {
-      const newSymbol = document.getElementById('stock-symbol')?.value.trim();
-      if (newSymbol) {
-        await loadStockData(newSymbol);
+      const input = document.getElementById('stock-symbol')?.value.trim();
+      if (input) {
+        const resolvedSymbol = getSymbolByName(input);
+        await loadStockData(resolvedSymbol);
       }
     });
 
@@ -237,6 +245,7 @@ const initAlertsPage = async () => {
 };
 
 document.addEventListener('DOMContentLoaded', initAlertsPage);
+
 window.addEventListener('stockSelected', async (e) => {
   const symbol = e.detail;
   document.getElementById('stock-symbol').value = symbol;

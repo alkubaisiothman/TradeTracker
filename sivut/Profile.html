@@ -88,12 +88,14 @@
         </div>
       </div>
     </div>
+
     <div class="profile-alerts">
       <h3>Viimeisimmät hälytykset</h3>
       <div id="recent-alerts" class="alerts-list">
         <p class="info-text">Ladataan hälytyksiä...</p>
       </div>
     </div>
+
     <div class="profile-tracked">
       <h3>Seuratut osakkeet</h3>
       <div id="tracked-stocks-list" class="tracked-list"></div>
@@ -102,7 +104,6 @@
         <button id="add-stock-btn" class="primary-button small">Lisää</button>
       </div>
     </div>
-    
   </main>
 
   <footer class="main-footer">
@@ -115,11 +116,12 @@
     </div>
   </footer>
 
+  <!-- Skriptit -->
   <script type="module" src="/script/ProfileScript.js"></script>
-  <script type="module" src="/script/auth/auth.js"></script>
-  <script type="module" src="/script/api/api.js"></script>
   <script>
-    document.getElementById('current-year').textContent = new Date().getFullYear();
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('current-year').textContent = new Date().getFullYear();
+    });
   </script>
 </body>
 </html>

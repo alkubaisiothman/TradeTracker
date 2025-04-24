@@ -69,22 +69,8 @@
           </div>
         </section>
 
-        <section id="selected-stock" class="alert-section">
-          <h2 class="section-title">Osakkeen tiedot</h2>
-          <div id="stock-data" class="stock-data">
-            <p class="no-data-message">Valitse osake nähdäksesi tiedot</p>
-          </div>
-        </section>
-
         <section id="stock-chart" class="alert-section">
           <h2 class="section-title">Hintakehitys</h2>
-          <div id="chart-controls" class="chart-controls">
-            <button id="1-day" class="chart-button">1 päivä</button>
-            <button id="1-week" class="chart-button">1 viikko</button>
-            <button id="1-month" class="chart-button active">1 kuukausi</button>
-            <button id="1-year" class="chart-button">1 vuosi</button>
-            <button id="reset-zoom" class="chart-button secondary">Nollaa zoom</button>
-          </div>          
           <div class="chart-container">
             <div class="chart-wrapper">
               <canvas id="priceChart" class="price-chart"></canvas>
@@ -94,6 +80,13 @@
               Kaavio näytetään kun osake on valittu
               <span class="hint">(Voit zoomata ja liikuttaa kaaviota)</span>
             </p>
+          </div>
+        </section>
+        
+        <section id="selected-stock" class="alert-section">
+          <h2 class="section-title">Osakkeen tiedot</h2>
+          <div id="stock-data" class="stock-data">
+            <p class="no-data-message">Valitse osake nähdäksesi tiedot</p>
           </div>
         </section>
 
