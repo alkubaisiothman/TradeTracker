@@ -159,8 +159,9 @@ const loadStockData = async (symbol) => {
 
     displayStockData(symbol, quote);
 
-    if (!history || !Array.isArray(history.t)) {
-      showError('Historiadataa ei voitu ladata. Osake ei ehkä ole tuettu ilmaisessa palvelussa.');
+    if (!history || !Array.isArray(history.t) || history.t.length === 0) {
+      document.getElementById('chart-message').style.display = 'block';
+      document.querySelector('.chart-container').style.display = 'none';
       return;
     }
 
