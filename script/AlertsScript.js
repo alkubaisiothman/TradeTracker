@@ -19,9 +19,7 @@ const showLoading = (elementId, isLoading = true) => {
   const el = document.getElementById(elementId);
   if (!el) return;
   el.style.display = isLoading ? 'block' : 'none';
-  if (isLoading) {
-    el.innerHTML = '<div class="loading-spinner"></div>';
-  }
+  if (isLoading) el.innerHTML = '<div class="loading-spinner"></div>';
 };
 
 const showError = (message, elementId = 'stock-data') => {
@@ -64,10 +62,7 @@ const setAlertForStock = async (symbol, currentPrice) => {
   const alertPrice = prompt(`Aseta hälytys hinta ${symbol}-osakkeelle (USD):`, currentPrice.toFixed(2));
   if (!alertPrice) return;
   const price = parseFloat(alertPrice);
-  if (isNaN(price)) {
-    showError('Virheellinen hinta');
-    return;
-  }
+  if (isNaN(price)) return showError('Virheellinen hinta');
 
   try {
     showLoading('alert-spinner', true);
@@ -125,10 +120,7 @@ const displayPopularCards = async () => {
         </p>
       `;
 
-      card.addEventListener('click', () => {
-        loadStockData(stock.symbol);
-      });
-
+      card.addEventListener('click', () => loadStockData(stock.symbol));
       container.appendChild(card);
     } catch {
       const errorCard = document.createElement('div');
