@@ -1,7 +1,16 @@
-// profileScript.js
 import { auth } from './auth/auth.js';
-import { userAPI } from './api/api.js';
-import { Chart, LineController, LineElement, PointElement, LinearScale, TimeScale, Title, Tooltip, Filler } from 'chart.js';
+import { userAPI, stockAPI } from './api/api.js';
+import {
+  Chart,
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  TimeScale,
+  Title,
+  Tooltip,
+  Filler
+} from 'chart.js';
 import 'chartjs-adapter-date-fns';
 
 Chart.register(LineController, LineElement, PointElement, LinearScale, TimeScale, Title, Tooltip, Filler);
@@ -80,7 +89,7 @@ const renderAlerts = (alerts = []) => {
   });
 };
 
-const renderTrackedStocks = (symbols = []) => {
+const renderTrackedStocks = async (symbols = []) => {
   const container = document.getElementById('tracked-stocks-list');
   if (!container) return;
 
@@ -88,12 +97,27 @@ const renderTrackedStocks = (symbols = []) => {
     ? '<p class="info-text">Ei seurattuja osakkeita.</p>'
     : '';
 
-  symbols.forEach(symbol => {
+  for (const symbol of symbols) {
     const wrapper = document.createElement('div');
     wrapper.className = 'stock-item-row';
+
+    // Haetaan osakkeen hintatieto
+    let priceText = 'Hinta ei saatavilla';
+    try {
+      const quote = await stockAPI.getQuote(symbol);
+      const price = parseFloat(quote['05. price']);
+      if (!isNaN(price)) {
+        priceText = `Hinta: ${price.toFixed(2)} USD`;
+      }
+    } catch {
+      priceText = 'Tietoja ei saatavilla';
+    }
+
     wrapper.innerHTML = `
       <div class="stock-row-header">
-        <span>${symbol}</span>
+        <div class="stock-info">
+          <strong>${symbol}</strong> <span class="stock-price">${priceText}</span>
+        </div>
         <div class="stock-buttons">
           <button class="show-history-button" data-symbol="${symbol}">Näytä historia</button>
           <button class="remove-stock-button" data-symbol="${symbol}">Poista</button>
@@ -109,7 +133,7 @@ const renderTrackedStocks = (symbols = []) => {
       try {
         const updated = symbols.filter(s => s !== symbol);
         await updateTrackedStocks(updated);
-        renderTrackedStocks(updated);
+        await renderTrackedStocks(updated);
         document.getElementById('stocks-count').textContent = updated.length;
       } catch {
         alert('Poisto epäonnistui');
@@ -131,7 +155,7 @@ const renderTrackedStocks = (symbols = []) => {
     });
 
     container.appendChild(wrapper);
-  });
+  }
 };
 
 const updateTrackedStocks = async (symbols) => {
@@ -146,58 +170,8 @@ const updateTrackedStocks = async (symbols) => {
 };
 
 const loadAndRenderChart = async (symbol, canvas) => {
-  try {
-    const response = await fetch(`/api/historical-data?symbol=${symbol}&period=1-month`);
-    const result = await response.json();
-
-    if (!result.success || !result.data['Time Series (Daily)']) {
-      canvas.parentElement.innerHTML = '<p class="info-text">Historiadataa ei saatavilla.</p>';
-      return;
-    }
-
-    const timeSeries = result.data['Time Series (Daily)'];
-    const labels = Object.keys(timeSeries).sort().map(date => new Date(date));
-    const prices = labels.map(date => parseFloat(timeSeries[date.toISOString().split('T')[0]]['4. close']));
-
-    new Chart(canvas.getContext('2d'), {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          label: `${symbol} hinta`,
-          data: prices,
-          borderColor: '#17C3B2',
-          backgroundColor: 'rgba(23, 195, 178, 0.1)',
-          fill: true,
-          tension: 0.3,
-          pointRadius: 0
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          x: {
-            type: 'time',
-            time: { unit: 'day' },
-            title: { display: true, text: 'Päivämäärä' }
-          },
-          y: {
-            title: { display: true, text: 'USD' }
-          }
-        },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            mode: 'index',
-            intersect: false
-          }
-        }
-      }
-    });
-  } catch (error) {
-    console.error('Virhe kaavion luonnissa:', error);
-    canvas.parentElement.innerHTML = '<p class="info-text">Virhe historiadatan latauksessa.</p>';
-  }
+  // Historiadata ei tuettu ilmaisessa versiossa
+  canvas.parentElement.innerHTML = '<p class="info-text">Historiadata ei saatavilla (ilmaisversio)</p>';
 };
 
 const updateUsername = async () => {
@@ -262,18 +236,23 @@ const initProfilePage = async () => {
       if (!symbol || symbol.length < 1) return alert('Syötä osaketunnus');
 
       try {
-        const current = [...document.querySelectorAll('.stock-item-row span')].map(el => el.textContent);
+        const current = [...document.querySelectorAll('.stock-item-row strong')].map(el => el.textContent);
         if (current.includes(symbol)) return alert('Osake on jo seurannassa');
+
+        const quote = await stockAPI.getQuote(symbol);
+        const price = parseFloat(quote?.['05. price']);
+        if (!price || isNaN(price)) return alert('Osaketietoja ei löytynyt');
 
         const updated = [...current, symbol];
         await updateTrackedStocks(updated);
-        renderTrackedStocks(updated);
+        await renderTrackedStocks(updated);
         document.getElementById('stocks-count').textContent = updated.length;
         input.value = '';
       } catch {
         alert('Lisäys epäonnistui');
       }
     });
+
   } catch {
     alert('Profiilitietojen haku epäonnistui');
   }

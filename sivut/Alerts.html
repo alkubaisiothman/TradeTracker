@@ -44,34 +44,19 @@
   <main class="content-main">
     <div class="alert-container">
       <div class="alert-left">
+        <!-- Suositut osakkeet -->
         <section id="popular-stocks" class="alert-section">
           <h2 class="section-title">Suositut osakkeet</h2>
-          <div class="manual-stock-actions">
-            <button id="load-popular-button" class="primary-button">Näytä suositut osakkeet</button>
-          </div>          
           <div id="stock-list" class="stock-list">
             <div class="loading-spinner" id="stocks-loading"></div>
           </div>
         </section>
-      </div>
 
-      <div class="alert-right">
-        <section id="stock-search" class="alert-section">
-          <h2 class="section-title">Hae osakkeita</h2>
-          <div class="search-container">
-            <input type="text" id="stock-symbol" 
-                   placeholder="Syötä osakkeen symboli (esim. AAPL, SAMPO.HE)" 
-                   class="search-input" autocomplete="off" />
-            <button id="search-button" class="search-button">
-              <span id="search-text">Hae</span>
-              <span id="search-spinner" class="loading-spinner small"></span>
-            </button>
-          </div>
-        </section>
-
+        <!-- Hintavertailu -->
         <section id="stock-chart" class="alert-section">
           <h2 class="section-title">Hintavertailu</h2>
-          <div class="chart-container">
+          <button id="load-popular-button" class="primary-button">Näytä hintavertailu</button>
+          <div class="chart-container" style="display: none;">
             <div class="chart-wrapper">
               <canvas id="priceChart" class="price-chart"></canvas>
             </div>
@@ -82,7 +67,22 @@
             </p>
           </div>
         </section>
-        
+      </div>
+
+      <div class="alert-right">
+        <!-- Hae osakkeita -->
+        <section id="stock-search" class="alert-section">
+          <h2 class="section-title">Hae osakkeita</h2>
+          <div class="search-container">
+            <input type="text" id="stock-symbol" placeholder="Syötä osakkeen symboli tai nimi (esim. AAPL, Microsoft)" class="search-input" autocomplete="off" />
+            <button id="search-button" class="search-button">
+              <span id="search-text">Hae</span>
+              <span id="search-spinner" class="loading-spinner small"></span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Osakkeen tiedot -->
         <section id="selected-stock" class="alert-section">
           <h2 class="section-title">Osakkeen tiedot</h2>
           <div id="stock-data" class="stock-data">
@@ -90,12 +90,11 @@
           </div>
         </section>
 
+        <!-- Aseta hälytys -->
         <section id="alerts" class="alert-section">
           <h2 class="section-title">Aseta hälytykset</h2>
           <div class="alert-form">
-            <input type="number" id="alert-price" 
-                   placeholder="Hinta (USD/EUR)" 
-                   class="alert-input" step="0.01" min="0" autocomplete="off" />
+            <input type="number" id="alert-price" placeholder="Hinta (USD/EUR)" class="alert-input" step="0.01" min="0" autocomplete="off" />
             <button id="set-alert-button" class="alert-button">
               <span id="alert-text">Aseta hälytys</span>
               <span id="alert-spinner" class="loading-spinner small"></span>
@@ -104,9 +103,7 @@
           <p id="alert-status" class="alert-status"></p>
           <div id="active-alerts" class="active-alerts-container">
             <h3>Aktiiviset hälytykset</h3>
-            <div id="alerts-list" class="alerts-list">
-              <!-- Hälytykset listataan tähän -->
-            </div>
+            <div id="alerts-list" class="alerts-list"></div>
           </div>
         </section>
       </div>
@@ -129,7 +126,6 @@
   <script type="module" src="/script/chart/chart.js"></script>
   <script type="module" src="/script/AlertsScript.js"></script>
 
-  <!-- Copyright-vuosi -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('current-year').textContent = new Date().getFullYear();
