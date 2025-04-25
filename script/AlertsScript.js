@@ -1,4 +1,4 @@
-// AlertsScript.js (uudistettu ja selkeytetty kuten pyydetty)
+// AlertsScript.js
 
 import { auth } from './auth/auth.js';
 import { stockAPI, alertAPI } from './api/api.js';
@@ -16,6 +16,7 @@ const POPULAR_STOCKS = [
 ];
 
 let chartVisible = false;
+let currentSelectedSymbol = null;
 
 const showLoading = (elementId, isLoading = true) => {
   const element = document.getElementById(elementId);
@@ -133,6 +134,7 @@ const displayPopularCards = async () => {
 const displayBarChart = async () => {
   try {
     showLoading('chart-loading', true);
+
     const stocks = await Promise.all(POPULAR_STOCKS.map(async stock => {
       const quote = await stockAPI.getQuote(stock.symbol);
       const price = parseFloat(quote['05. price']);
@@ -143,7 +145,12 @@ const displayBarChart = async () => {
     const symbols = sorted.map(s => s.symbol);
     const prices = sorted.map(s => s.price);
 
-    chart.updateBarChart(symbols, prices);
+    chart.updateBarChart(symbols, prices, (clickedSymbol) => {
+      currentSelectedSymbol = clickedSymbol;
+      loadStockData(clickedSymbol);
+      chart.highlightBar(clickedSymbol); // tämä toteutetaan chart.js:ssä
+    });
+
     document.querySelector('.chart-container').style.display = 'block';
     chartVisible = true;
   } catch (err) {
@@ -177,14 +184,22 @@ const initAlertsPage = async () => {
       if (input) {
         const symbol = getSymbolByName(input);
         await loadStockData(symbol);
+        chart.highlightBar(symbol); // korostetaan pylväs, jos löytyy
       }
     });
 
     document.getElementById('toggle-chart-button')?.addEventListener('click', async () => {
-      if (!chartVisible) await displayBarChart();
-      else document.querySelector('.chart-container').style.display = 'none';
-      chartVisible = !chartVisible;
+      if (!chartVisible) {
+        await displayBarChart();
+      } else {
+        document.querySelector('.chart-container').style.display = 'none';
+        chartVisible = false;
+      }
     });
+
+    // Näytetään kaavio heti sivun latauksessa
+    await displayBarChart();
+
   } catch (err) {
     showError('Sivun alustusvirhe: ' + err.message);
   }
@@ -196,4 +211,5 @@ window.addEventListener('stockSelected', async (e) => {
   const symbol = e.detail;
   document.getElementById('stock-symbol').value = symbol;
   await loadStockData(symbol);
+  chart.highlightBar(symbol);
 });

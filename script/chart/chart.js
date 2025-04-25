@@ -1,4 +1,6 @@
 let priceChart = null;
+let defaultBackgroundColor = '#17C3B2';
+let highlightColor = '#FFA500';
 
 export const chart = {
   init: (canvasId = 'priceChart') => {
@@ -14,7 +16,7 @@ export const chart = {
         datasets: [{
           label: 'Osakehinta (USD)',
           data: [],
-          backgroundColor: '#17C3B2',
+          backgroundColor: [],
           borderRadius: 6,
           barPercentage: 0.6
         }]
@@ -58,10 +60,38 @@ export const chart = {
     return priceChart;
   },
 
-  updateBarChart: (symbols, prices) => {
+  updateBarChart: (symbols, prices, onClickCallback = null) => {
     if (!priceChart || !Array.isArray(symbols) || !Array.isArray(prices)) return;
+
     priceChart.data.labels = symbols;
     priceChart.data.datasets[0].data = prices;
+    priceChart.data.datasets[0].backgroundColor = symbols.map(() => defaultBackgroundColor);
+    
+    // override onClick if custom callback is given
+    if (onClickCallback) {
+      priceChart.options.onClick = (e, elements) => {
+        if (elements.length > 0) {
+          const index = elements[0].index;
+          const symbol = priceChart.data.labels[index];
+          if (symbol) {
+            onClickCallback(symbol);
+          }
+        }
+      };
+    }
+
+    priceChart.update();
+  },
+
+  highlightBar: (symbol) => {
+    if (!priceChart || !symbol) return;
+
+    const index = priceChart.data.labels.findIndex(s => s === symbol);
+    const colors = priceChart.data.labels.map(() => defaultBackgroundColor);
+    if (index !== -1) {
+      colors[index] = highlightColor;
+    }
+    priceChart.data.datasets[0].backgroundColor = colors;
     priceChart.update();
   },
 
