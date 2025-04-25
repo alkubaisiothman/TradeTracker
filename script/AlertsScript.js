@@ -1,5 +1,3 @@
-// AlertsScript.js
-
 import { auth } from './auth/auth.js';
 import { stockAPI, alertAPI } from './api/api.js';
 import { chart } from './chart/chart.js';
