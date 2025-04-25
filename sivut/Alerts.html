@@ -55,7 +55,7 @@
         <!-- Hintavertailu -->
         <section id="stock-chart" class="alert-section">
           <h2 class="section-title">Hintavertailu</h2>
-          <button id="load-popular-button" class="primary-button">Näytä hintavertailu</button>
+          <button id="toggle-chart-button" class="primary-button">Näytä hintavertailu</button>
           <div class="chart-container" style="display: none;">
             <div class="chart-wrapper">
               <canvas id="priceChart" class="price-chart"></canvas>
@@ -129,15 +129,6 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('current-year').textContent = new Date().getFullYear();
-
-      const showChartBtn = document.getElementById('load-popular-button');
-      const chartContainer = document.querySelector('.chart-container');
-      if (showChartBtn && chartContainer) {
-        showChartBtn.addEventListener('click', () => {
-          chartContainer.style.display = 'block';
-          document.getElementById('chart-message').style.display = 'block';
-        });
-      }
     });
   </script>
 </body>

@@ -14,7 +14,6 @@ const POPULAR_STOCKS = [
 ];
 
 let chartVisible = false;
-let currentSelectedSymbol = null;
 
 const showLoading = (elementId, isLoading = true) => {
   const element = document.getElementById(elementId);
@@ -144,13 +143,13 @@ const displayBarChart = async () => {
     const prices = sorted.map(s => s.price);
 
     chart.updateBarChart(symbols, prices, (clickedSymbol) => {
-      currentSelectedSymbol = clickedSymbol;
       loadStockData(clickedSymbol);
-      chart.highlightBar(clickedSymbol); // tämä toteutetaan chart.js:ssä
+      chart.highlightBar(clickedSymbol);
     });
 
     document.querySelector('.chart-container').style.display = 'block';
     chartVisible = true;
+    document.getElementById('toggle-chart-button').textContent = 'Piilota hintavertailu';
   } catch (err) {
     showError('Hintavertailu ei saatavilla: ' + err.message);
   } finally {
@@ -177,27 +176,30 @@ const initAlertsPage = async () => {
     chart.init();
     await displayPopularCards();
 
+    // Hakunappi
     document.getElementById('search-button')?.addEventListener('click', async () => {
       const input = document.getElementById('stock-symbol').value.trim();
       if (input) {
         const symbol = getSymbolByName(input);
         await loadStockData(symbol);
-        chart.highlightBar(symbol); // korostetaan pylväs, jos löytyy
+        chart.highlightBar(symbol);
       }
     });
 
+    // Hintavertailun toggle
     document.getElementById('toggle-chart-button')?.addEventListener('click', async () => {
+      const chartEl = document.querySelector('.chart-container');
       if (!chartVisible) {
         await displayBarChart();
       } else {
-        document.querySelector('.chart-container').style.display = 'none';
+        chartEl.style.display = 'none';
         chartVisible = false;
+        document.getElementById('toggle-chart-button').textContent = 'Näytä hintavertailu';
       }
     });
 
-    // Näytetään kaavio heti sivun latauksessa
+    // Kaavio näkyviin aluksi
     await displayBarChart();
-
   } catch (err) {
     showError('Sivun alustusvirhe: ' + err.message);
   }

@@ -24,6 +24,7 @@ export const chart = {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: true,
         onClick: (e, elements) => {
           if (elements.length > 0) {
             const index = elements[0].index;
@@ -66,8 +67,7 @@ export const chart = {
     priceChart.data.labels = symbols;
     priceChart.data.datasets[0].data = prices;
     priceChart.data.datasets[0].backgroundColor = symbols.map(() => defaultBackgroundColor);
-    
-    // override onClick if custom callback is given
+
     if (onClickCallback) {
       priceChart.options.onClick = (e, elements) => {
         if (elements.length > 0) {
@@ -91,7 +91,9 @@ export const chart = {
     if (index !== -1) {
       colors[index] = highlightColor;
     }
+
     priceChart.data.datasets[0].backgroundColor = colors;
+    priceChart.options.animation = false; // nopeampi väriresponsi
     priceChart.update();
   },
 
