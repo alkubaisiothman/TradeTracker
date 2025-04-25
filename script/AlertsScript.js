@@ -16,21 +16,18 @@ const POPULAR_STOCKS = [
 let chartVisible = false;
 
 const showLoading = (elementId, isLoading = true) => {
-  const element = document.getElementById(elementId);
-  if (!element) return;
-
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  el.style.display = isLoading ? 'block' : 'none';
   if (isLoading) {
-    element.innerHTML = '<div class="loading-spinner"></div>';
-    element.style.display = 'block';
-  } else {
-    element.style.display = 'none';
+    el.innerHTML = '<div class="loading-spinner"></div>';
   }
 };
 
 const showError = (message, elementId = 'stock-data') => {
-  const element = document.getElementById(elementId);
-  if (element) {
-    element.innerHTML = `<p class="error">${message}</p>`;
+  const el = document.getElementById(elementId);
+  if (el) {
+    el.innerHTML = `<p class="error">${message}</p>`;
   }
   console.error(message);
 };
@@ -66,28 +63,40 @@ const displayStockData = (symbol, quote) => {
 const setAlertForStock = async (symbol, currentPrice) => {
   const alertPrice = prompt(`Aseta hälytys hinta ${symbol}-osakkeelle (USD):`, currentPrice.toFixed(2));
   if (!alertPrice) return;
-
-  const priceValue = parseFloat(alertPrice);
-  if (isNaN(priceValue)) {
+  const price = parseFloat(alertPrice);
+  if (isNaN(price)) {
     showError('Virheellinen hinta');
     return;
   }
 
   try {
     showLoading('alert-spinner', true);
-    await alertAPI.createAlert({ symbol, price: priceValue, currentPrice });
-    alert(`Hälytys asetettu onnistuneesti ${symbol} hinnalle ${priceValue.toFixed(2)} USD`);
-  } catch (error) {
-    showError(`Hälytyksen asetus epäonnistui: ${error.message}`);
+    await alertAPI.createAlert({ symbol, price, currentPrice });
+    alert(`Hälytys asetettu onnistuneesti ${symbol} hinnalle ${price.toFixed(2)} USD`);
+  } catch (err) {
+    showError(`Hälytyksen asetus epäonnistui: ${err.message}`);
   } finally {
     showLoading('alert-spinner', false);
   }
 };
 
+const loadStockData = async (symbol) => {
+  try {
+    showLoading('stock-data', true);
+    const quote = await stockAPI.getQuote(symbol);
+    if (!quote || !quote['01. symbol']) throw new Error('Tietoja ei saatu');
+    displayStockData(symbol, quote);
+  } catch (err) {
+    showError(err.message || 'Tietojen haku epäonnistui');
+  } finally {
+    showLoading('stock-data', false);
+  }
+};
+
 const getSymbolByName = (input) => {
   const lower = input.toLowerCase();
-  const match = POPULAR_STOCKS.find(
-    s => s.symbol.toLowerCase() === lower || s.name.toLowerCase().includes(lower)
+  const match = POPULAR_STOCKS.find(s =>
+    s.symbol.toLowerCase() === lower || s.name.toLowerCase().includes(lower)
   );
   return match?.symbol || input.toUpperCase();
 };
@@ -97,7 +106,6 @@ const displayPopularCards = async () => {
   if (!container) return;
 
   container.innerHTML = '';
-
   for (const stock of POPULAR_STOCKS) {
     try {
       const quote = await stockAPI.getQuote(stock.symbol);
@@ -117,9 +125,12 @@ const displayPopularCards = async () => {
         </p>
       `;
 
-      card.addEventListener('click', () => loadStockData(stock.symbol));
+      card.addEventListener('click', () => {
+        loadStockData(stock.symbol);
+      });
+
       container.appendChild(card);
-    } catch (err) {
+    } catch {
       const errorCard = document.createElement('div');
       errorCard.className = 'stock-card error-card';
       errorCard.innerHTML = `<h3>${stock.symbol}</h3><p>Tietoja ei saatavilla</p>`;
@@ -131,7 +142,6 @@ const displayPopularCards = async () => {
 const displayBarChart = async () => {
   try {
     showLoading('chart-loading', true);
-
     const stocks = await Promise.all(POPULAR_STOCKS.map(async stock => {
       const quote = await stockAPI.getQuote(stock.symbol);
       const price = parseFloat(quote['05. price']);
@@ -142,14 +152,10 @@ const displayBarChart = async () => {
     const symbols = sorted.map(s => s.symbol);
     const prices = sorted.map(s => s.price);
 
-    chart.updateBarChart(symbols, prices, (clickedSymbol) => {
-      loadStockData(clickedSymbol);
-      chart.highlightBar(clickedSymbol);
+    chart.updateBarChart(symbols, prices, (symbol) => {
+      chart.highlightBar(symbol);
+      loadStockData(symbol);
     });
-
-    document.querySelector('.chart-container').style.display = 'block';
-    chartVisible = true;
-    document.getElementById('toggle-chart-button').textContent = 'Piilota hintavertailu';
   } catch (err) {
     showError('Hintavertailu ei saatavilla: ' + err.message);
   } finally {
@@ -157,52 +163,37 @@ const displayBarChart = async () => {
   }
 };
 
-const loadStockData = async (symbol) => {
-  try {
-    showLoading('stock-data', true);
-    const quote = await stockAPI.getQuote(symbol);
-    if (!quote || !quote['01. symbol']) throw new Error('Tietoja ei saatu');
-    displayStockData(symbol, quote);
-  } catch (err) {
-    showError(err.message || 'Tietojen haku epäonnistui');
-  } finally {
-    showLoading('stock-data', false);
+const toggleChart = async () => {
+  const chartContainer = document.querySelector('.chart-container');
+  const toggleButton = document.getElementById('load-popular-button');
+
+  if (!chartVisible) {
+    chartContainer.style.display = 'block';
+    toggleButton.textContent = 'Piilota hintavertailu';
+    await displayBarChart();
+  } else {
+    chartContainer.style.display = 'none';
+    toggleButton.textContent = 'Näytä hintavertailu';
   }
+
+  chartVisible = !chartVisible;
 };
 
 const initAlertsPage = async () => {
-  try {
-    if (!auth.check(true)) return;
-    chart.init();
-    await displayPopularCards();
+  if (!auth.check(true)) return;
+  chart.init();
+  await displayPopularCards();
 
-    // Hakunappi
-    document.getElementById('search-button')?.addEventListener('click', async () => {
-      const input = document.getElementById('stock-symbol').value.trim();
-      if (input) {
-        const symbol = getSymbolByName(input);
-        await loadStockData(symbol);
-        chart.highlightBar(symbol);
-      }
-    });
+  document.getElementById('search-button')?.addEventListener('click', async () => {
+    const input = document.getElementById('stock-symbol').value.trim();
+    if (input) {
+      const symbol = getSymbolByName(input);
+      await loadStockData(symbol);
+      chart.highlightBar(symbol);
+    }
+  });
 
-    // Hintavertailun toggle
-    document.getElementById('toggle-chart-button')?.addEventListener('click', async () => {
-      const chartEl = document.querySelector('.chart-container');
-      if (!chartVisible) {
-        await displayBarChart();
-      } else {
-        chartEl.style.display = 'none';
-        chartVisible = false;
-        document.getElementById('toggle-chart-button').textContent = 'Näytä hintavertailu';
-      }
-    });
-
-    // Kaavio näkyviin aluksi
-    await displayBarChart();
-  } catch (err) {
-    showError('Sivun alustusvirhe: ' + err.message);
-  }
+  document.getElementById('load-popular-button')?.addEventListener('click', toggleChart);
 };
 
 document.addEventListener('DOMContentLoaded', initAlertsPage);
@@ -211,5 +202,4 @@ window.addEventListener('stockSelected', async (e) => {
   const symbol = e.detail;
   document.getElementById('stock-symbol').value = symbol;
   await loadStockData(symbol);
-  chart.highlightBar(symbol);
 });

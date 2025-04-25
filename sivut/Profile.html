@@ -10,10 +10,11 @@
 <body>
   <nav class="main-navigation">
     <ul class="nav-list">
+      <!-- AINA NÄKYVÄT -->
       <li class="nav-item"><a href="/index.html" class="nav-link">Koti</a></li>
       <li class="nav-item"><a href="/index.html#introduction" class="nav-link">Tietoa meistä</a></li>
 
-      <!-- Kirjautunut -->
+      <!-- KIRJAUTUNEEN NÄKYMÄ (piilotettu aluksi) -->
       <li id="user-greeting" class="nav-item user-greeting" style="display:none;"></li>
       <li id="profile-item" class="nav-item" style="display:none;">
         <a href="/sivut/Profile.html" class="nav-link">Profiili</a>
@@ -22,10 +23,10 @@
         <a href="/sivut/Alerts.html" class="nav-link">Hälytykset</a>
       </li>
       <li id="logout-item" class="nav-item" style="display:none;">
-        <a href="#" id="logout-btn" class="nav-link">Kirjaudu ulos</a>
+        <button id="logout-btn" class="nav-button">Kirjaudu ulos</button>
       </li>
 
-      <!-- Kirjautumaton -->
+      <!-- KIRJAUTUMATON NÄKYMÄ (poistetaan JS:llä jos kirjautunut) -->
       <li id="login-item" class="nav-item">
         <a href="/sivut/Login.html" class="nav-link">Kirjaudu sisään</a>
       </li>
@@ -122,9 +123,30 @@
 
   <!-- Skriptit -->
   <script type="module" src="/script/ProfileScript.js"></script>
-  <script>
+  <script type="module">
+    import { auth } from '/script/auth/auth.js';
+
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('current-year').textContent = new Date().getFullYear();
+
+      const isLoggedIn = auth.check();
+      const username = localStorage.getItem('username') || 'Käyttäjä';
+
+      if (isLoggedIn) {
+        document.getElementById('user-greeting').textContent = `Hei, ${username}`;
+        document.getElementById('user-greeting').style.display = 'inline-block';
+        document.getElementById('profile-item').style.display = 'inline-block';
+        document.getElementById('alerts-item').style.display = 'inline-block';
+        document.getElementById('logout-item').style.display = 'inline-block';
+        document.getElementById('login-item')?.remove();
+        document.getElementById('register-item')?.remove();
+      } else {
+        window.location.href = '/sivut/Login.html';
+      }
+
+      document.getElementById('logout-btn')?.addEventListener('click', () => {
+        auth.logout();
+      });
     });
   </script>
 </body>
