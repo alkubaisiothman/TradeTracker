@@ -122,15 +122,15 @@
   }
   
   .logout-button {
-    background: none;
-    border: none;
+    all: unset; /* poistaa kaiken oletustyylin */
     color: var(--text-secondary);
+    font-weight: bold;
     padding: 0.5rem 1rem;
     border-radius: 5px;
     cursor: pointer;
-    font-weight: bold;
     text-decoration: none;
     transition: var(--transition);
+    display: inline-block;
   }
   
   .logout-button:hover {
