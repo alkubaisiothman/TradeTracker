@@ -123,17 +123,19 @@
   
   .logout-button {
     background: none;
-    border: 1px solid var(--text-secondary);
+    border: none;
     color: var(--text-secondary);
     padding: 0.5rem 1rem;
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
+    text-decoration: none;
     transition: var(--transition);
   }
   
   .logout-button:hover {
-    background: rgba(255,255,255,0.1);
+    background-color: var(--border-color);
+    color: var(--text-secondary);
   }
   
   .user-greeting {

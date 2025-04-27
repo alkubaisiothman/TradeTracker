@@ -120,38 +120,39 @@
     </div>
   </footer>
 
-  <script>
-    // Päivitä copyright-vuosi
-    document.getElementById('current-year').textContent = new Date().getFullYear();
-    
-    // Tarkista onko käyttäjä kirjautunut (tämä on esimerkki, toteutus riippuu järjestelmästäsi)
-    function checkLoginStatus() {
-      // Tässä esimerkissä käytetään localStoragea, mutta oikeassa sovelluksessa
-      // tarkistat todennäköisesti sessionin tai tokenin
-      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-      
-      if (isLoggedIn) {
-        // Voit myös näyttää käyttäjän nimen
-        const username = localStorage.getItem('username') || 'Käyttäjä';
-        document.getElementById('user-greeting').textContent = `Hei, ${username}`;
+  <!-- Skriptit -->
+  <script type="module" src="/script/ProfileScript.js"></script>
+  <script type="module">
+    import { auth } from '/script/auth/auth.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('current-year').textContent = new Date().getFullYear();
+
+      const userGreeting = document.getElementById('user-greeting');
+      const profileItem = document.getElementById('profile-item');
+      const alertsItem = document.getElementById('alerts-item');
+      const logoutItem = document.getElementById('logout-item');
+      const loginItem = document.getElementById('login-item');
+      const registerItem = document.getElementById('register-item');
+
+      const user = auth.getUser();
+      if (user) {
+        userGreeting.textContent = `Hei, ${user.username}`;
+        userGreeting.style.display = 'inline-block';
+        profileItem.style.display = 'inline-block';
+        alertsItem.style.display = 'inline-block';
+        logoutItem.style.display = 'inline-block';
+        loginItem.style.display = 'none';
+        registerItem.style.display = 'none';
+
+        document.getElementById('logout-btn').addEventListener('click', () => {
+          auth.logout();
+        });
       } else {
-        document.getElementById('guest-view').style.display = 'block';
-        document.getElementById('user-view').style.display = 'none';
-        document.getElementById('user-greeting').textContent = '';
+        // Ei kirjautunut -> ohjataan login-sivulle
+        window.location.href = '/sivut/Login.html';
       }
-    }
-    
-    // Kirjaudu ulos -toiminto
-    document.getElementById('logout-btn').addEventListener('click', function() {
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('username');
-      checkLoginStatus();
-      // Uudelleenohjaa etusivulle
-      window.location.href = 'index.html';
     });
-    
-    // Tarkista kirjautumistila kun sivu latautuu
-    window.addEventListener('load', checkLoginStatus);
   </script>
 </body>
 </html>
