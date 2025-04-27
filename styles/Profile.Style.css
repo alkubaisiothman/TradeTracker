@@ -121,20 +121,6 @@
     background-color: var(--border-color);
   }
   
-  .logout-button {
-    background: none;
-    border: 1px solid var(--text-secondary);
-    color: var(--text-secondary);
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: var(--transition);
-  }
-  
-  .logout-button:hover {
-    background: rgba(255,255,255,0.1);
-  }
   
   .user-greeting {
     display: none; /* Piilotettu oletuksena, näytetään JS:llä kirjautuessa */
