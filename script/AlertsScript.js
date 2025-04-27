@@ -86,7 +86,8 @@ const setAlertForStock = async (symbol, currentPrice) => {
 const loadStockData = async (symbol) => {
   try {
     showLoading('stock-data', true);
-    const quote = await stockAPI.getQuote(symbol);
+    const response = await stockAPI.getQuote(symbol);
+    const quote = response['data']; // <<-- tärkeä korjaus tähän
     displayStockData(symbol, quote);
   } catch (err) {
     showError(err.message || 'Tietojen haku epäonnistui');
