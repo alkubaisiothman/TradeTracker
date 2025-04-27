@@ -35,24 +35,24 @@ const showError = (message, elementId = 'stock-data') => {
 // Näytä osakkeen tiedot
 const displayStockData = (symbol, quote) => {
   const container = document.getElementById('stock-data');
-  if (!container || !quote || !quote['05. price']) {
+  if (!container || !quote || typeof quote.c !== 'number') {
     showError('Osaketietoja ei saatavilla');
     return;
   }
 
-  const price = parseFloat(quote['05. price']).toFixed(2);
-  const change = parseFloat(quote['09. change']).toFixed(2);
-  const changePercent = quote['10. change percent'];
+  const price = quote.c.toFixed(2);     // current price
+  const change = quote.d.toFixed(2);    // change
+  const changePercent = quote.dp.toFixed(2); // percent change
   const isNegative = parseFloat(change) < 0;
 
   container.innerHTML = `
-    <div class="stock-info">
+    <div class="stock-card">
       <h3>${symbol}</h3>
       <p>Hinta: ${price} USD</p>
       <p class="${isNegative ? 'negative' : 'positive'}">
-        Muutos: ${change} (${changePercent})
+        Muutos: ${change} (${changePercent}%)
       </p>
-      <button id="set-alert-btn" class="alert-button">Aseta hälytys</button>
+      <button id="set-alert-btn" class="primary-button small">Aseta hälytys</button>
     </div>
   `;
 

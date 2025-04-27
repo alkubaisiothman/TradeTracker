@@ -22,7 +22,7 @@
         <a href="/sivut/Alerts.html" class="nav-link">Hälytykset</a>
       </li>
       <li id="logout-item" class="nav-item" style="display:none;">
-        <a href="#" id="logout-btn" class="nav-link">Kirjaudu ulos</a>
+        <button id="logout-btn" class="nav-button">Kirjaudu ulos</button>
       </li>
 
       <!-- Kirjautumaton -->
@@ -122,9 +122,36 @@
 
   <!-- Skriptit -->
   <script type="module" src="/script/ProfileScript.js"></script>
-  <script>
+  <script type="module">
+    import { auth } from '/script/auth/auth.js';
+
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('current-year').textContent = new Date().getFullYear();
+
+      const userGreeting = document.getElementById('user-greeting');
+      const profileItem = document.getElementById('profile-item');
+      const alertsItem = document.getElementById('alerts-item');
+      const logoutItem = document.getElementById('logout-item');
+      const loginItem = document.getElementById('login-item');
+      const registerItem = document.getElementById('register-item');
+
+      const user = auth.getUser();
+      if (user) {
+        userGreeting.textContent = `Hei, ${user.username}`;
+        userGreeting.style.display = 'inline-block';
+        profileItem.style.display = 'inline-block';
+        alertsItem.style.display = 'inline-block';
+        logoutItem.style.display = 'inline-block';
+        loginItem.style.display = 'none';
+        registerItem.style.display = 'none';
+
+        document.getElementById('logout-btn').addEventListener('click', () => {
+          auth.logout();
+        });
+      } else {
+        // Ei kirjautunut -> ohjataan login-sivulle
+        window.location.href = '/sivut/Login.html';
+      }
     });
   </script>
 </body>
