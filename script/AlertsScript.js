@@ -15,6 +15,7 @@ const POPULAR_STOCKS = [
 
 let chartVisible = false;
 
+// Näytä latausikoni
 const showLoading = (elementId, isLoading = true) => {
   const el = document.getElementById(elementId);
   if (!el) return;
@@ -22,6 +23,7 @@ const showLoading = (elementId, isLoading = true) => {
   if (isLoading) el.innerHTML = '<div class="loading-spinner"></div>';
 };
 
+// Virheviestit
 const showError = (message, elementId = 'stock-data') => {
   const el = document.getElementById(elementId);
   if (el) {
@@ -30,6 +32,7 @@ const showError = (message, elementId = 'stock-data') => {
   console.error(message);
 };
 
+// Näytä osakkeen tiedot
 const displayStockData = (symbol, quote) => {
   const container = document.getElementById('stock-data');
   if (!container || !quote || !quote['05. price']) {
@@ -58,11 +61,15 @@ const displayStockData = (symbol, quote) => {
   });
 };
 
+// Aseta hälytys
 const setAlertForStock = async (symbol, currentPrice) => {
   const alertPrice = prompt(`Aseta hälytys hinta ${symbol}-osakkeelle (USD):`, currentPrice.toFixed(2));
   if (!alertPrice) return;
   const price = parseFloat(alertPrice);
-  if (isNaN(price)) return showError('Virheellinen hinta');
+  if (isNaN(price)) {
+    showError('Virheellinen hinta');
+    return;
+  }
 
   try {
     showLoading('alert-spinner', true);
@@ -75,6 +82,7 @@ const setAlertForStock = async (symbol, currentPrice) => {
   }
 };
 
+// Lataa ja näytä osakkeen tiedot
 const loadStockData = async (symbol) => {
   try {
     showLoading('stock-data', true);
@@ -88,6 +96,7 @@ const loadStockData = async (symbol) => {
   }
 };
 
+// Hae syötteestä tunnus
 const getSymbolByName = (input) => {
   const lower = input.toLowerCase();
   const match = POPULAR_STOCKS.find(s =>
@@ -96,6 +105,7 @@ const getSymbolByName = (input) => {
   return match?.symbol || input.toUpperCase();
 };
 
+// Suositut osakkeet kortteina
 const displayPopularCards = async () => {
   const container = document.getElementById('stock-list');
   if (!container) return;
@@ -120,7 +130,11 @@ const displayPopularCards = async () => {
         </p>
       `;
 
-      card.addEventListener('click', () => loadStockData(stock.symbol));
+      card.addEventListener('click', () => {
+        loadStockData(stock.symbol);
+        chart.highlightBar(stock.symbol);
+      });
+
       container.appendChild(card);
     } catch {
       const errorCard = document.createElement('div');
@@ -131,6 +145,7 @@ const displayPopularCards = async () => {
   }
 };
 
+// Näytä kaavio (bar chart)
 const displayBarChart = async () => {
   try {
     showLoading('chart-loading', true);
@@ -144,9 +159,9 @@ const displayBarChart = async () => {
     const symbols = sorted.map(s => s.symbol);
     const prices = sorted.map(s => s.price);
 
-    chart.updateBarChart(symbols, prices, (symbol) => {
-      chart.highlightBar(symbol);
-      loadStockData(symbol);
+    chart.updateBarChart(symbols, prices, (clickedSymbol) => {
+      loadStockData(clickedSymbol);
+      chart.highlightBar(clickedSymbol);
     });
   } catch (err) {
     showError('Hintavertailu ei saatavilla: ' + err.message);
@@ -155,6 +170,7 @@ const displayBarChart = async () => {
   }
 };
 
+// Näytä/Piilota kaavio-nappula
 const toggleChart = async () => {
   const chartContainer = document.querySelector('.chart-container');
   const toggleButton = document.getElementById('load-popular-button');
@@ -171,6 +187,7 @@ const toggleChart = async () => {
   chartVisible = !chartVisible;
 };
 
+// Sivun alustus
 const initAlertsPage = async () => {
   if (!auth.check(true)) return;
   chart.init();
@@ -188,10 +205,13 @@ const initAlertsPage = async () => {
   document.getElementById('load-popular-button')?.addEventListener('click', toggleChart);
 };
 
+// DOM valmis
 document.addEventListener('DOMContentLoaded', initAlertsPage);
 
+// Jos kaaviosta klikataan pylvästä
 window.addEventListener('stockSelected', async (e) => {
   const symbol = e.detail;
   document.getElementById('stock-symbol').value = symbol;
   await loadStockData(symbol);
+  chart.highlightBar(symbol);
 });

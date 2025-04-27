@@ -13,6 +13,7 @@
   <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 </head>
+
 <body>
   <nav class="main-navigation">
     <ul class="nav-list">
@@ -28,7 +29,7 @@
         <a href="/sivut/Alerts.html" class="nav-link">Hälytykset</a>
       </li>
       <li id="logout-item" class="nav-item" style="display:none;">
-        <a href="#" id="logout-btn" class="nav-link">Kirjaudu ulos</a>
+        <button id="logout-btn" class="nav-button">Kirjaudu ulos</button>
       </li>
 
       <!-- Kirjautumaton -->
@@ -55,15 +56,14 @@
         <!-- Hintavertailu -->
         <section id="stock-chart" class="alert-section">
           <h2 class="section-title">Hintavertailu</h2>
-          <button id="toggle-chart-button" class="primary-button">Näytä hintavertailu</button>
+          <button id="load-popular-button" class="primary-button">Näytä hintavertailu</button>
           <div class="chart-container" style="display: none;">
             <div class="chart-wrapper">
               <canvas id="priceChart" class="price-chart"></canvas>
             </div>
             <div id="chart-loading" class="loading-spinner"></div>
             <p id="chart-message" class="no-data-message">
-              Kaavio näytetään kun osake on valittu
-              <span class="hint">(Voit zoomata ja liikuttaa kaaviota)</span>
+              Valitse osake nähdäksesi tarkempaa hintatietoa
             </p>
           </div>
         </section>
@@ -101,6 +101,7 @@
             </button>
           </div>
           <p id="alert-status" class="alert-status"></p>
+
           <div id="active-alerts" class="active-alerts-container">
             <h3>Aktiiviset hälytykset</h3>
             <div id="alerts-list" class="alerts-list"></div>
@@ -125,11 +126,5 @@
   <script type="module" src="/script/api/api.js"></script>
   <script type="module" src="/script/chart/chart.js"></script>
   <script type="module" src="/script/AlertsScript.js"></script>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('current-year').textContent = new Date().getFullYear();
-    });
-  </script>
 </body>
 </html>

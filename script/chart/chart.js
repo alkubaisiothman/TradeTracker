@@ -1,6 +1,6 @@
 let priceChart = null;
-let defaultBackgroundColor = '#17C3B2';
-let highlightColor = '#FFA500';
+const defaultBackgroundColor = '#17C3B2';
+const highlightColor = '#FFA500';
 
 export const chart = {
   init: (canvasId = 'priceChart') => {
@@ -24,7 +24,7 @@ export const chart = {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: true,
+        animation: false, // jotta highlight näkyy nopeasti
         onClick: (e, elements) => {
           if (elements.length > 0) {
             const index = elements[0].index;
@@ -88,12 +88,12 @@ export const chart = {
 
     const index = priceChart.data.labels.findIndex(s => s === symbol);
     const colors = priceChart.data.labels.map(() => defaultBackgroundColor);
+
     if (index !== -1) {
       colors[index] = highlightColor;
     }
 
     priceChart.data.datasets[0].backgroundColor = colors;
-    priceChart.options.animation = false; // nopeampi väriresponsi
     priceChart.update();
   },
 
