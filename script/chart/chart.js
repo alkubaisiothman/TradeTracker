@@ -7,7 +7,9 @@ export const chart = {
     const ctx = document.getElementById(canvasId);
     if (!ctx || typeof Chart === 'undefined') return null;
 
-    if (priceChart) priceChart.destroy();
+    if (priceChart) {
+      priceChart.destroy();
+    }
 
     priceChart = new Chart(ctx.getContext('2d'), {
       type: 'bar',
@@ -24,12 +26,12 @@ export const chart = {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: false, // jotta highlight näkyy nopeasti
         onClick: (e, elements) => {
           if (elements.length > 0) {
             const index = elements[0].index;
             const symbol = priceChart.data.labels[index];
             if (symbol) {
+              // Lähetetään tapahtuma (esim. AAPL)
               window.dispatchEvent(new CustomEvent('stockSelected', { detail: symbol }));
             }
           }
@@ -44,13 +46,23 @@ export const chart = {
         },
         scales: {
           x: {
-            title: { display: true, text: 'Osake', color: '#666' },
-            ticks: { color: '#999' }
+            title: {
+              display: true,
+              text: 'Osake',
+              color: '#999'
+            },
+            ticks: {
+              color: '#bbb'
+            }
           },
           y: {
-            title: { display: true, text: 'Hinta (USD)', color: '#666' },
+            title: {
+              display: true,
+              text: 'Hinta (USD)',
+              color: '#999'
+            },
             ticks: {
-              color: '#999',
+              color: '#bbb',
               callback: value => `${value} $`
             }
           }
@@ -88,11 +100,9 @@ export const chart = {
 
     const index = priceChart.data.labels.findIndex(s => s === symbol);
     const colors = priceChart.data.labels.map(() => defaultBackgroundColor);
-
     if (index !== -1) {
       colors[index] = highlightColor;
     }
-
     priceChart.data.datasets[0].backgroundColor = colors;
     priceChart.update();
   },

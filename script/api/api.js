@@ -64,11 +64,24 @@ export const api = {
   }
 };
 
-// VAIN nykyisen osaketiedon haku (ilman historiallista dataa)
+// --- NYT MUUTETTU TÄMÄ!! 👇 ---
+// stockAPI.getQuote palauttaa SUORAAN oikeassa muodossa!
 export const stockAPI = {
   getQuote: async (symbol) => {
     const response = await api.get(`/api/stock-data?symbol=${symbol}`, false);
-    return response.data;
+    const rawData = response.data;
+
+    if (!rawData || !rawData['Global Quote']) {
+      throw new Error('Osaketietoja ei saatavilla');
+    }
+
+    const quote = rawData['Global Quote'];
+    return {
+      symbol: quote['01. symbol'],
+      price: quote['05. price'],
+      change: quote['09. change'],
+      changePercent: quote['10. change percent']
+    };
   }
 };
 

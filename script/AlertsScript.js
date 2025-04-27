@@ -15,7 +15,6 @@ const POPULAR_STOCKS = [
 
 let chartVisible = false;
 
-// Näytä latausikoni
 const showLoading = (elementId, isLoading = true) => {
   const el = document.getElementById(elementId);
   if (!el) return;
@@ -23,7 +22,6 @@ const showLoading = (elementId, isLoading = true) => {
   if (isLoading) el.innerHTML = '<div class="loading-spinner"></div>';
 };
 
-// Virheviestit
 const showError = (message, elementId = 'stock-data') => {
   const el = document.getElementById(elementId);
   if (el) {
@@ -32,44 +30,39 @@ const showError = (message, elementId = 'stock-data') => {
   console.error(message);
 };
 
-// Näytä osakkeen tiedot
-const displayStockData = (symbol, quote) => {
+const displayStockData = (stock) => {
   const container = document.getElementById('stock-data');
-  if (!container || !quote || typeof quote.c !== 'number') {
+  if (!container || !stock) {
     showError('Osaketietoja ei saatavilla');
     return;
   }
 
-  const price = quote.c.toFixed(2);     // current price
-  const change = quote.d.toFixed(2);    // change
-  const changePercent = quote.dp.toFixed(2); // percent change
+  const price = parseFloat(stock.price).toFixed(2);
+  const change = parseFloat(stock.change).toFixed(2);
+  const changePercent = stock.changePercent;
   const isNegative = parseFloat(change) < 0;
 
   container.innerHTML = `
-    <div class="stock-card">
-      <h3>${symbol}</h3>
+    <div class="stock-info">
+      <h3>${stock.symbol}</h3>
       <p>Hinta: ${price} USD</p>
       <p class="${isNegative ? 'negative' : 'positive'}">
-        Muutos: ${change} (${changePercent}%)
+        Muutos: ${change} (${changePercent})
       </p>
-      <button id="set-alert-btn" class="primary-button small">Aseta hälytys</button>
+      <button id="set-alert-btn" class="alert-button">Aseta hälytys</button>
     </div>
   `;
 
   document.getElementById('set-alert-btn')?.addEventListener('click', () => {
-    setAlertForStock(symbol, parseFloat(price));
+    setAlertForStock(stock.symbol, parseFloat(price));
   });
 };
 
-// Aseta hälytys
 const setAlertForStock = async (symbol, currentPrice) => {
   const alertPrice = prompt(`Aseta hälytys hinta ${symbol}-osakkeelle (USD):`, currentPrice.toFixed(2));
   if (!alertPrice) return;
   const price = parseFloat(alertPrice);
-  if (isNaN(price)) {
-    showError('Virheellinen hinta');
-    return;
-  }
+  if (isNaN(price)) return showError('Virheellinen hinta');
 
   try {
     showLoading('alert-spinner', true);
@@ -82,13 +75,12 @@ const setAlertForStock = async (symbol, currentPrice) => {
   }
 };
 
-// Lataa ja näytä osakkeen tiedot
 const loadStockData = async (symbol) => {
   try {
     showLoading('stock-data', true);
-    const quote = await stockAPI.getQuote(symbol);
-    if (!quote || !quote['01. symbol']) throw new Error('Tietoja ei saatu');
-    displayStockData(symbol, quote);
+    const stock = await stockAPI.getQuote(symbol);
+    if (!stock || !stock.price) throw new Error('Tietoja ei saatu');
+    displayStockData(stock);
   } catch (err) {
     showError(err.message || 'Tietojen haku epäonnistui');
   } finally {
@@ -96,7 +88,6 @@ const loadStockData = async (symbol) => {
   }
 };
 
-// Hae syötteestä tunnus
 const getSymbolByName = (input) => {
   const lower = input.toLowerCase();
   const match = POPULAR_STOCKS.find(s =>
@@ -105,7 +96,6 @@ const getSymbolByName = (input) => {
   return match?.symbol || input.toUpperCase();
 };
 
-// Suositut osakkeet kortteina
 const displayPopularCards = async () => {
   const container = document.getElementById('stock-list');
   if (!container) return;
@@ -114,9 +104,9 @@ const displayPopularCards = async () => {
   for (const stock of POPULAR_STOCKS) {
     try {
       const quote = await stockAPI.getQuote(stock.symbol);
-      const price = parseFloat(quote['05. price']).toFixed(2);
-      const change = parseFloat(quote['09. change']).toFixed(2);
-      const changePercent = quote['10. change percent'];
+      const price = parseFloat(quote.price).toFixed(2);
+      const change = parseFloat(quote.change).toFixed(2);
+      const changePercent = quote.changePercent;
       const isNegative = parseFloat(change) < 0;
 
       const card = document.createElement('div');
@@ -130,11 +120,7 @@ const displayPopularCards = async () => {
         </p>
       `;
 
-      card.addEventListener('click', () => {
-        loadStockData(stock.symbol);
-        chart.highlightBar(stock.symbol);
-      });
-
+      card.addEventListener('click', () => loadStockData(stock.symbol));
       container.appendChild(card);
     } catch {
       const errorCard = document.createElement('div');
@@ -145,13 +131,12 @@ const displayPopularCards = async () => {
   }
 };
 
-// Näytä kaavio (bar chart)
 const displayBarChart = async () => {
   try {
     showLoading('chart-loading', true);
     const stocks = await Promise.all(POPULAR_STOCKS.map(async stock => {
       const quote = await stockAPI.getQuote(stock.symbol);
-      const price = parseFloat(quote['05. price']);
+      const price = parseFloat(quote.price);
       return { symbol: stock.symbol, price };
     }));
 
@@ -159,9 +144,9 @@ const displayBarChart = async () => {
     const symbols = sorted.map(s => s.symbol);
     const prices = sorted.map(s => s.price);
 
-    chart.updateBarChart(symbols, prices, (clickedSymbol) => {
-      loadStockData(clickedSymbol);
-      chart.highlightBar(clickedSymbol);
+    chart.updateBarChart(symbols, prices, (symbol) => {
+      chart.highlightBar(symbol);
+      loadStockData(symbol);
     });
   } catch (err) {
     showError('Hintavertailu ei saatavilla: ' + err.message);
@@ -170,7 +155,6 @@ const displayBarChart = async () => {
   }
 };
 
-// Näytä/Piilota kaavio-nappula
 const toggleChart = async () => {
   const chartContainer = document.querySelector('.chart-container');
   const toggleButton = document.getElementById('load-popular-button');
@@ -187,7 +171,6 @@ const toggleChart = async () => {
   chartVisible = !chartVisible;
 };
 
-// Sivun alustus
 const initAlertsPage = async () => {
   if (!auth.check(true)) return;
   chart.init();
@@ -205,13 +188,10 @@ const initAlertsPage = async () => {
   document.getElementById('load-popular-button')?.addEventListener('click', toggleChart);
 };
 
-// DOM valmis
 document.addEventListener('DOMContentLoaded', initAlertsPage);
 
-// Jos kaaviosta klikataan pylvästä
 window.addEventListener('stockSelected', async (e) => {
   const symbol = e.detail;
   document.getElementById('stock-symbol').value = symbol;
   await loadStockData(symbol);
-  chart.highlightBar(symbol);
 });
