@@ -37,30 +37,31 @@ const displayStockData = (symbol, quote) => {
     return;
   }
 
-  const price = parseFloat(quote['05. price'] || quote.currentPrice);
-  const change = parseFloat(quote['09. change'] || quote.change);
+  // Yritetään hakea molempia mahdollisia tiedon muotoja
+  const price = quote['05. price'] || quote.currentPrice;
+  const change = quote['09. change'] || quote.change;
   const changePercent = quote['10. change percent'] || quote.percentChange;
 
-  if (isNaN(price) || isNaN(change)) {
+  if (price == null || change == null) {
     showError('Osaketietoja ei saatavilla');
     return;
   }
 
-  const isNegative = change < 0;
+  const isNegative = parseFloat(change) < 0;
 
   container.innerHTML = `
     <div class="stock-info">
       <h3>${symbol}</h3>
-      <p>Hinta: ${price.toFixed(2)} USD</p>
+      <p>Hinta: ${parseFloat(price).toFixed(2)} USD</p>
       <p class="${isNegative ? 'negative' : 'positive'}">
-        Muutos: ${change.toFixed(2)} (${changePercent || ''})
+        Muutos: ${parseFloat(change).toFixed(2)} (${changePercent || ''})
       </p>
       <button id="set-alert-btn" class="alert-button">Aseta hälytys</button>
     </div>
   `;
 
   document.getElementById('set-alert-btn')?.addEventListener('click', () => {
-    setAlertForStock(symbol, price);
+    setAlertForStock(symbol, parseFloat(price));
   });
 };
 
@@ -109,19 +110,19 @@ const displayPopularCards = async () => {
   for (const stock of POPULAR_STOCKS) {
     try {
       const quote = await stockAPI.getQuote(stock.symbol);
-      const price = parseFloat(quote['05. price'] || quote.currentPrice);
-      const change = parseFloat(quote['09. change'] || quote.change);
+      const price = quote['05. price'] || quote.currentPrice;
+      const change = quote['09. change'] || quote.change;
       const changePercent = quote['10. change percent'] || quote.percentChange;
-      const isNegative = change < 0;
+      const isNegative = parseFloat(change) < 0;
 
       const card = document.createElement('div');
       card.className = 'stock-card';
       card.dataset.symbol = stock.symbol;
       card.innerHTML = `
         <h3>${stock.symbol}</h3>
-        <p>Hinta: ${price.toFixed(2)} USD</p>
+        <p>Hinta: ${parseFloat(price).toFixed(2)} USD</p>
         <p class="${isNegative ? 'negative' : 'positive'}">
-          Muutos: ${change.toFixed(2)} (${changePercent || ''})
+          Muutos: ${parseFloat(change).toFixed(2)} (${changePercent || ''})
         </p>
       `;
 
