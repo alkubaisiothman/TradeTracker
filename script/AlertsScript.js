@@ -37,22 +37,23 @@ const displayStockData = (symbol, quote) => {
     return;
   }
 
-  const price = parseFloat(quote['05. price']);
-  const change = parseFloat(quote['09. change']);
-  const changePercent = quote['10. change percent'];
-  const isNegative = change < 0;
+  const price = parseFloat(quote['05. price'] || quote.currentPrice);
+  const change = parseFloat(quote['09. change'] || quote.change);
+  const changePercent = quote['10. change percent'] || quote.percentChange;
 
   if (isNaN(price) || isNaN(change)) {
     showError('Osaketietoja ei saatavilla');
     return;
   }
 
+  const isNegative = change < 0;
+
   container.innerHTML = `
     <div class="stock-info">
       <h3>${symbol}</h3>
       <p>Hinta: ${price.toFixed(2)} USD</p>
       <p class="${isNegative ? 'negative' : 'positive'}">
-        Muutos: ${change.toFixed(2)} (${changePercent})
+        Muutos: ${change.toFixed(2)} (${changePercent || ''})
       </p>
       <button id="set-alert-btn" class="alert-button">Aseta hälytys</button>
     </div>
@@ -84,7 +85,7 @@ const loadStockData = async (symbol) => {
   try {
     showLoading('stock-data', true);
     const quote = await stockAPI.getQuote(symbol);
-    displayStockData(symbol, quote);  // EI enää tarkisteta quote['01. symbol']!
+    displayStockData(symbol, quote);
   } catch (err) {
     showError(err.message || 'Tietojen haku epäonnistui');
   } finally {
@@ -108,9 +109,9 @@ const displayPopularCards = async () => {
   for (const stock of POPULAR_STOCKS) {
     try {
       const quote = await stockAPI.getQuote(stock.symbol);
-      const price = parseFloat(quote['05. price']);
-      const change = parseFloat(quote['09. change']);
-      const changePercent = quote['10. change percent'];
+      const price = parseFloat(quote['05. price'] || quote.currentPrice);
+      const change = parseFloat(quote['09. change'] || quote.change);
+      const changePercent = quote['10. change percent'] || quote.percentChange;
       const isNegative = change < 0;
 
       const card = document.createElement('div');
@@ -120,7 +121,7 @@ const displayPopularCards = async () => {
         <h3>${stock.symbol}</h3>
         <p>Hinta: ${price.toFixed(2)} USD</p>
         <p class="${isNegative ? 'negative' : 'positive'}">
-          Muutos: ${change.toFixed(2)} (${changePercent})
+          Muutos: ${change.toFixed(2)} (${changePercent || ''})
         </p>
       `;
 
@@ -140,7 +141,7 @@ const displayBarChart = async () => {
     showLoading('chart-loading', true);
     const stocks = await Promise.all(POPULAR_STOCKS.map(async stock => {
       const quote = await stockAPI.getQuote(stock.symbol);
-      const price = parseFloat(quote['05. price']);
+      const price = parseFloat(quote['05. price'] || quote.currentPrice);
       return { symbol: stock.symbol, price };
     }));
 
