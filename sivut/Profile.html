@@ -125,17 +125,18 @@
   <script type="module" src="/script/ProfileScript.js"></script>
   <script type="module">
     import { auth } from '/script/auth/auth.js';
-
+  
     document.addEventListener('DOMContentLoaded', () => {
+      // Päivitetään footerin vuosi
       document.getElementById('current-year').textContent = new Date().getFullYear();
-
+  
       const userGreeting = document.getElementById('user-greeting');
       const profileItem = document.getElementById('profile-item');
       const alertsItem = document.getElementById('alerts-item');
       const logoutItem = document.getElementById('logout-item');
       const loginItem = document.getElementById('login-item');
       const registerItem = document.getElementById('register-item');
-
+  
       const user = auth.getUser();
       if (user) {
         userGreeting.textContent = `Hei, ${user.username}`;
@@ -145,8 +146,10 @@
         logoutItem.style.display = 'inline-block';
         loginItem.style.display = 'none';
         registerItem.style.display = 'none';
-
-        document.getElementById('logout-btn').addEventListener('click', () => {
+  
+        // Logout-linkin klikkaus käsittely
+        document.getElementById('logout-link').addEventListener('click', (event) => {
+          event.preventDefault(); // Estetään sivun hyppääminen
           auth.logout();
         });
       } else {
