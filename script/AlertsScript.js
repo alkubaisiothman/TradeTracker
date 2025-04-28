@@ -32,37 +32,29 @@ const showError = (message, elementId = 'stock-data') => {
 
 const displayStockData = (symbol, quote) => {
   const container = document.getElementById('stock-data');
-  if (!container || !quote) {
+  if (!container || !quote || !quote['05. price']) {
     showError('Osaketietoja ei saatavilla');
     return;
   }
 
-  const price = quote['05. price'];
-  const change = quote['09. change'];
+  const price = parseFloat(quote['05. price']);
+  const change = parseFloat(quote['09. change']);
   const changePercent = quote['10. change percent'];
-
-  if (!price || !change || !changePercent) {
-    showError('Osaketietoja ei saatavilla');
-    return;
-  }
-
-  const priceValue = parseFloat(price);
-  const changeValue = parseFloat(change);
-  const isNegative = changeValue < 0;
+  const isNegative = change < 0;
 
   container.innerHTML = `
-    <div class="stock-info">
+    <div class="stock-card">
       <h3>${symbol}</h3>
-      <p>Hinta: ${priceValue.toFixed(2)} USD</p>
+      <p>Hinta: ${price.toFixed(2)} USD</p>
       <p class="${isNegative ? 'negative' : 'positive'}">
-        Muutos: ${changeValue.toFixed(2)} (${changePercent})
+        Muutos: ${change.toFixed(2)} (${changePercent})
       </p>
-      <button id="set-alert-btn" class="alert-button">Aseta hälytys</button>
+      <button id="set-alert-btn" class="primary-button small">Aseta hälytys</button>
     </div>
   `;
 
   document.getElementById('set-alert-btn')?.addEventListener('click', () => {
-    setAlertForStock(symbol, priceValue);
+    setAlertForStock(symbol, price);
   });
 };
 
@@ -70,7 +62,10 @@ const setAlertForStock = async (symbol, currentPrice) => {
   const alertPrice = prompt(`Aseta hälytys hinta ${symbol}-osakkeelle (USD):`, currentPrice.toFixed(2));
   if (!alertPrice) return;
   const price = parseFloat(alertPrice);
-  if (isNaN(price)) return showError('Virheellinen hinta');
+  if (isNaN(price)) {
+    showError('Virheellinen hinta');
+    return;
+  }
 
   try {
     showLoading('alert-spinner', true);
@@ -86,8 +81,7 @@ const setAlertForStock = async (symbol, currentPrice) => {
 const loadStockData = async (symbol) => {
   try {
     showLoading('stock-data', true);
-    const response = await stockAPI.getQuote(symbol);
-    const quote = response['data']; // <<-- tärkeä korjaus tähän
+    const quote = await stockAPI.getQuote(symbol);
     displayStockData(symbol, quote);
   } catch (err) {
     showError(err.message || 'Tietojen haku epäonnistui');
@@ -112,22 +106,19 @@ const displayPopularCards = async () => {
   for (const stock of POPULAR_STOCKS) {
     try {
       const quote = await stockAPI.getQuote(stock.symbol);
-      const price = quote['05. price'];
-      const change = quote['09. change'];
+      const price = parseFloat(quote['05. price']);
+      const change = parseFloat(quote['09. change']);
       const changePercent = quote['10. change percent'];
-
-      const priceValue = parseFloat(price);
-      const changeValue = parseFloat(change);
-      const isNegative = changeValue < 0;
+      const isNegative = change < 0;
 
       const card = document.createElement('div');
       card.className = 'stock-card';
       card.dataset.symbol = stock.symbol;
       card.innerHTML = `
         <h3>${stock.symbol}</h3>
-        <p>Hinta: ${priceValue.toFixed(2)} USD</p>
+        <p>Hinta: ${price.toFixed(2)} USD</p>
         <p class="${isNegative ? 'negative' : 'positive'}">
-          Muutos: ${changeValue.toFixed(2)} (${changePercent})
+          Muutos: ${change.toFixed(2)} (${changePercent})
         </p>
       `;
 
