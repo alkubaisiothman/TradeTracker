@@ -5,12 +5,25 @@ import { chart } from './chart/chart.js';
 const POPULAR_STOCKS = [
   { symbol: 'AAPL', name: 'Apple Inc.' },
   { symbol: 'GOOGL', name: 'Alphabet Inc.' },
-  { symbol: 'MSFT', name: 'Microsoft' },
+  { symbol: 'MSFT', name: 'Microsoft Corporation' },
   { symbol: 'TSLA', name: 'Tesla, Inc.' },
   { symbol: 'META', name: 'Meta Platforms, Inc.' },
   { symbol: 'NVDA', name: 'NVIDIA Corporation' },
   { symbol: 'AMZN', name: 'Amazon.com, Inc.' },
-  { symbol: 'AMD', name: 'Advanced Micro Devices, Inc.' }
+  { symbol: 'AMD', name: 'Advanced Micro Devices, Inc.' },
+  { symbol: 'BRK.B', name: 'Berkshire Hathaway Inc.' },
+  { symbol: 'LLY', name: 'Eli Lilly and Company' },
+  { symbol: 'AVGO', name: 'Broadcom Inc.' },
+  { symbol: 'JPM', name: 'JPMorgan Chase & Co.' },
+  { symbol: 'UNH', name: 'UnitedHealth Group Incorporated' },
+  { symbol: 'V', name: 'Visa Inc.' },
+  { symbol: 'XOM', name: 'Exxon Mobil Corporation' },
+  { symbol: 'PG', name: 'Procter & Gamble Company' },
+  { symbol: 'MA', name: 'Mastercard Incorporated' },
+  { symbol: 'CVX', name: 'Chevron Corporation' },
+  { symbol: 'JNJ', name: 'Johnson & Johnson' },
+  { symbol: 'MRK', name: 'Merck & Co., Inc.' },
+  { symbol: 'HD', name: 'The Home Depot, Inc.' }
 ];
 
 let chartVisible = false;
@@ -43,10 +56,12 @@ const displayStockData = (symbol, quote) => {
   const change = parseFloat(quote['09. change']);
   const changePercent = quote['10. change percent'];
   const isNegative = change < 0;
+  const stockInfo = POPULAR_STOCKS.find(s => s.symbol === symbol);
+  const companyName = stockInfo ? stockInfo.name : '';
 
   container.innerHTML = `
     <div class="stock-card">
-      <h3>${symbol}</h3>
+      <h3>${symbol}${companyName ? ` - ${companyName}` : ''}</h3>
       <p>Hinta: ${price.toFixed(2)} USD</p>
       <p class="${isNegative ? 'negative' : 'positive'}">
         Muutos: ${change.toFixed(2)} (${changePercent})
@@ -107,7 +122,7 @@ const createStockCard = (stock, price, change, changePercent) => {
   card.className = 'stock-card';
   card.dataset.symbol = stock.symbol;
   card.innerHTML = `
-    <h3>${stock.symbol}</h3>
+    <h3>${stock.symbol} - ${stock.name}</h3>
     <p>Hinta: ${price.toFixed(2)} USD</p>
     <p class="${isNegative ? 'negative' : 'positive'}">
       Muutos: ${change.toFixed(2)} (${changePercent})
@@ -115,18 +130,15 @@ const createStockCard = (stock, price, change, changePercent) => {
     <button class="set-alert-btn primary-button small">Aseta hälytys</button>
   `;
 
-  // Lisää tapahtumankäsittelijä kortin klikkaukselle
   card.addEventListener('click', (e) => {
-    // Estä toiminto, jos klikattiin "Aseta hälytys" -nappia
     if (!e.target.classList.contains('set-alert-btn')) {
       loadStockData(stock.symbol);
     }
   });
 
-  // Lisää tapahtumankäsittelijä hälytyksen asettamiselle
   const alertBtn = card.querySelector('.set-alert-btn');
   alertBtn.addEventListener('click', async (e) => {
-    e.stopPropagation(); // Estä kortin klikkaustapahtuman läpimeno
+    e.stopPropagation();
     await setAlertForStock(stock.symbol, price);
   });
 
@@ -147,7 +159,7 @@ const displayPopularCards = async () => {
         const price = parseFloat(quote['05. price']);
         const change = parseFloat(quote['09. change']);
         const changePercent = quote['10. change percent'];
-        
+
         if (!isNaN(price)) {
           const card = createStockCard(stock, price, change, changePercent);
           container.appendChild(card);
@@ -208,7 +220,6 @@ const initAlertsPage = async () => {
   chart.init();
   await displayPopularCards();
 
-  // Käsittele hakutoiminto
   document.getElementById('search-button')?.addEventListener('click', async () => {
     const input = document.getElementById('stock-symbol').value.trim();
     if (input) {
@@ -217,7 +228,6 @@ const initAlertsPage = async () => {
     }
   });
 
-  // Käsittele enter-näppäin hakukentässä
   document.getElementById('stock-symbol')?.addEventListener('keypress', async (e) => {
     if (e.key === 'Enter') {
       const input = document.getElementById('stock-symbol').value.trim();
@@ -228,7 +238,6 @@ const initAlertsPage = async () => {
     }
   });
 
-  // Käsittele kaavion näyttö/piilotus
   document.getElementById('load-popular-button')?.addEventListener('click', toggleChart);
 };
 
