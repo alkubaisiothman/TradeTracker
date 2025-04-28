@@ -82,31 +82,33 @@
           </div>
         </section>
 
+<!-- Muuta vain osaketietojen ja hälytysosion HTML -->
+          <div class="alert-right">
+          <!-- Hae osakkeita -->
+          <section id="stock-search" class="alert-section">
+            <h2 class="section-title">Hae osakkeita</h2>
+            <div class="search-container">
+              <input type="text" id="stock-symbol" placeholder="Syötä osakkeen symboli tai nimi (esim. AAPL, Microsoft)"
+              class="search-input" autocomplete="off" />
+              <button id="search-button" class="search-button">
+                <span id="search-text">Hae</span>
+                <span id="search-spinner" class="loading-spinner small"></span>
+              </button>
+            </div>
+          </section>
+
         <!-- Osakkeen tiedot -->
         <section id="selected-stock" class="alert-section">
           <h2 class="section-title">Osakkeen tiedot</h2>
           <div id="stock-data" class="stock-data">
-            <p class="no-data-message">Valitse osake nähdäksesi tiedot</p>
+          <p class="no-data-message">Valitse osake nähdäksesi tiedot</p>
           </div>
         </section>
 
-        <!-- Aseta hälytys -->
-        <section id="alerts" class="alert-section">
-          <h2 class="section-title">Aseta hälytykset</h2>
-          <div class="alert-form">
-            <input type="number" id="alert-price" placeholder="Hinta (USD/EUR)" class="alert-input" step="0.01" min="0" autocomplete="off" />
-            <button id="set-alert-button" class="alert-button">
-              <span id="alert-text">Aseta hälytys</span>
-              <span id="alert-spinner" class="loading-spinner small"></span>
-            </button>
-          </div>
-          <p id="alert-status" class="alert-status"></p>
-
-          <div id="active-alerts" class="active-alerts-container">
-            <h3>Aktiiviset hälytykset</h3>
-            <div id="alerts-list" class="alerts-list"></div>
-          </div>
-        </section>
+        <!-- Hälytysten tilan seuranta -->
+        <div id="alert-status" class="alert-status"></div>
+        <div id="alert-spinner" class="loading-spinner small" style="display: none;"></div>
+        </div>
       </div>
     </div>
   </main>

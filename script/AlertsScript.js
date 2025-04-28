@@ -14,6 +14,7 @@ const POPULAR_STOCKS = [
 ];
 
 let chartVisible = false;
+let currentSymbol = null;
 
 const showLoading = (elementId, isLoading = true) => {
   const el = document.getElementById(elementId);
@@ -37,6 +38,7 @@ const displayStockData = (symbol, quote) => {
     return;
   }
 
+  currentSymbol = symbol;
   const price = parseFloat(quote['05. price']);
   const change = parseFloat(quote['09. change']);
   const changePercent = quote['10. change percent'];
@@ -83,6 +85,7 @@ const loadStockData = async (symbol) => {
     showLoading('stock-data', true);
     const quote = await stockAPI.getQuote(symbol);
     displayStockData(symbol, quote);
+    chart.highlightBar(symbol);
   } catch (err) {
     showError(err.message || 'Tietojen haku epäonnistui');
   } finally {
@@ -98,38 +101,66 @@ const getSymbolByName = (input) => {
   return match?.symbol || input.toUpperCase();
 };
 
+const createStockCard = (stock, price, change, changePercent) => {
+  const isNegative = change < 0;
+  const card = document.createElement('div');
+  card.className = 'stock-card';
+  card.dataset.symbol = stock.symbol;
+  card.innerHTML = `
+    <h3>${stock.symbol}</h3>
+    <p>Hinta: ${price.toFixed(2)} USD</p>
+    <p class="${isNegative ? 'negative' : 'positive'}">
+      Muutos: ${change.toFixed(2)} (${changePercent})
+    </p>
+    <button class="set-alert-btn primary-button small">Aseta hälytys</button>
+  `;
+
+  // Lisää tapahtumankäsittelijä kortin klikkaukselle
+  card.addEventListener('click', (e) => {
+    // Estä toiminto, jos klikattiin "Aseta hälytys" -nappia
+    if (!e.target.classList.contains('set-alert-btn')) {
+      loadStockData(stock.symbol);
+    }
+  });
+
+  // Lisää tapahtumankäsittelijä hälytyksen asettamiselle
+  const alertBtn = card.querySelector('.set-alert-btn');
+  alertBtn.addEventListener('click', async (e) => {
+    e.stopPropagation(); // Estä kortin klikkaustapahtuman läpimeno
+    await setAlertForStock(stock.symbol, price);
+  });
+
+  return card;
+};
+
 const displayPopularCards = async () => {
   const container = document.getElementById('stock-list');
   if (!container) return;
 
   container.innerHTML = '';
-  for (const stock of POPULAR_STOCKS) {
-    try {
-      const quote = await stockAPI.getQuote(stock.symbol);
-      const price = parseFloat(quote['05. price']);
-      const change = parseFloat(quote['09. change']);
-      const changePercent = quote['10. change percent'];
-      const isNegative = change < 0;
+  showLoading('stocks-loading', true);
 
-      const card = document.createElement('div');
-      card.className = 'stock-card';
-      card.dataset.symbol = stock.symbol;
-      card.innerHTML = `
-        <h3>${stock.symbol}</h3>
-        <p>Hinta: ${price.toFixed(2)} USD</p>
-        <p class="${isNegative ? 'negative' : 'positive'}">
-          Muutos: ${change.toFixed(2)} (${changePercent})
-        </p>
-      `;
-
-      card.addEventListener('click', () => loadStockData(stock.symbol));
-      container.appendChild(card);
-    } catch {
-      const errorCard = document.createElement('div');
-      errorCard.className = 'stock-card error-card';
-      errorCard.innerHTML = `<h3>${stock.symbol}</h3><p>Tietoja ei saatavilla</p>`;
-      container.appendChild(errorCard);
+  try {
+    for (const stock of POPULAR_STOCKS) {
+      try {
+        const quote = await stockAPI.getQuote(stock.symbol);
+        const price = parseFloat(quote['05. price']);
+        const change = parseFloat(quote['09. change']);
+        const changePercent = quote['10. change percent'];
+        
+        if (!isNaN(price)) {
+          const card = createStockCard(stock, price, change, changePercent);
+          container.appendChild(card);
+        }
+      } catch {
+        const errorCard = document.createElement('div');
+        errorCard.className = 'stock-card error-card';
+        errorCard.innerHTML = `<h3>${stock.symbol}</h3><p>Tietoja ei saatavilla</p>`;
+        container.appendChild(errorCard);
+      }
     }
+  } finally {
+    showLoading('stocks-loading', false);
   }
 };
 
@@ -147,7 +178,6 @@ const displayBarChart = async () => {
     const prices = sorted.map(s => s.price);
 
     chart.updateBarChart(symbols, prices, (symbol) => {
-      chart.highlightBar(symbol);
       loadStockData(symbol);
     });
   } catch (err) {
@@ -178,15 +208,27 @@ const initAlertsPage = async () => {
   chart.init();
   await displayPopularCards();
 
+  // Käsittele hakutoiminto
   document.getElementById('search-button')?.addEventListener('click', async () => {
     const input = document.getElementById('stock-symbol').value.trim();
     if (input) {
       const symbol = getSymbolByName(input);
       await loadStockData(symbol);
-      chart.highlightBar(symbol);
     }
   });
 
+  // Käsittele enter-näppäin hakukentässä
+  document.getElementById('stock-symbol')?.addEventListener('keypress', async (e) => {
+    if (e.key === 'Enter') {
+      const input = document.getElementById('stock-symbol').value.trim();
+      if (input) {
+        const symbol = getSymbolByName(input);
+        await loadStockData(symbol);
+      }
+    }
+  });
+
+  // Käsittele kaavion näyttö/piilotus
   document.getElementById('load-popular-button')?.addEventListener('click', toggleChart);
 };
 
